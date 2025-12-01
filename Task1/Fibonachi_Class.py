@@ -5,6 +5,7 @@ class fibo:
         if number <= 0:
             list.append(0)
         elif number == 1:
+            list.append(0)
             list.append(1)
         else:
             list.append(0)
