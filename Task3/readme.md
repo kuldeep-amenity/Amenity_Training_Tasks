@@ -1,7 +1,6 @@
 ## Copy Operation
 
-### using shutil module we can perform copy operation of files from one location to another location.
-
+### using shutil module used here for file opertion 
 ```python
 import os
 import shutil as sh
