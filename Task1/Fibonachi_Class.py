@@ -11,10 +11,11 @@ class fibo:
             list.append(0)
             list.append(1)
             a, b = 0, 1
-            for _ in range(1, number):
+            for _ in range(2, number):
                 a, b = b, a + b
                 list.append(b)
         return list   
+
         
     # def fiboseries(self,n):
     #     list=[] # space complexity is n
