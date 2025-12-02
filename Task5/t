@@ -1,0 +1,55 @@
+Pandas Task List:
+Loading & Initial Inspection:
+Load a CSV file (e.g., sales_data.csv) into a Pandas DataFrame.
+Display the first 7 rows of the DataFrame.
+Display the last 7 rows of the DataFrame.
+Find the shape (number of rows and columns) of the DataFrame.
+List all column names of the DataFrame.
+Display the data types of each column.
+Get a descriptive statistical summary for all numerical columns.
+Get a descriptive statistical summary for all columns (including object/categorical).
+Check the number of unique values in each column.
+Data Selection & Indexing:
+Select and display a single column by its name (e.g., 'Product').
+Select and display multiple specific columns by their names (e.g., 'Product', 'Price', 'Quantity').
+Select and display the row at index position 3 (the 4th row).
+Select and display rows from index position 5 to 10.
+Set a meaningful column (e.g., 'OrderID') as the DataFrame's index.
+Select and display a specific row using its new index label (e.g., if 'OrderID' 'XYZ123' is an index).
+Select and display specific rows and columns using .loc[] (e.g., rows with index labels 'A', 'B' and columns 'Product', 'Region').
+Select and display specific rows and columns using .iloc[] (e.g., rows at index positions 0, 2, 4 and columns at index positions 1, 3).
+Filtering Data:
+Filter and display all rows where a numerical column (e.g., 'Quantity') is greater than a certain value (e.g., 10).
+Filter and display all rows where a categorical column (e.g., 'Category') is equal to a specific value (e.g., 'Electronics').
+Filter and display rows that meet multiple conditions (e.g., 'Region' is 'West' AND 'Price' is less than 50).
+Filter and display rows where a column's value is one of several specified values (e.g., 'Product' is 'Laptop', 'Mouse', or 'Keyboard').
+Filter out rows where a specific column has missing values.
+Data Cleaning & Manipulation:
+Identify columns with any missing (NaN) values.
+Count the total number of missing values in each column.
+Fill missing values in a specific numerical column with its mean or median.
+Fill missing values in a specific categorical column with a placeholder like 'Unknown' or the mode.
+Drop all rows that have any missing values.
+Drop a specific column by its name.
+Create a new column by performing an arithmetic operation on two existing numerical columns (e.g., 'TotalPrice' = 'Quantity' * 'Price').
+Convert a column containing date strings to the datetime data type.
+Extract the month or year from a datetime column into a new column.
+Rename one or more columns.
+Change the data type of a column (e.g., from float to integer, if appropriate).
+Find and remove duplicate rows from the DataFrame.
+Apply a custom function to each element in a Series/column (e.g., convert text to uppercase).
+Grouping & Aggregation:
+Group data by a single column (e.g., 'Category') and calculate the sum of another column (e.g., 'Revenue') for each group.
+Group data by a single column and calculate the mean of another column.
+Group data by multiple columns (e.g., 'Region', 'Category') and count the number of occurrences in each group.
+Find the minimum and maximum values of a numerical column for each group.
+Calculate the number of unique items in a column for each group (e.g., unique products per category).
+Get the size of each group after grouping.
+Use agg() to apply multiple aggregation functions at once after grouping.
+Sorting & Ranking:
+Sort the DataFrame by a single column in ascending order.
+Sort the DataFrame by a single column in descending order.
+Sort the DataFrame by multiple columns.
+Combining DataFrames (Use multiple small datasets):
+Concatenate two DataFrames vertically (stacking them).
+Merge two DataFrames based on a common key column (like a SQL join).
