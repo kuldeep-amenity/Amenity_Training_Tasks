@@ -1,4 +1,4 @@
-# Pandas Data Analysis Guide
+# Pandas Task List
 
 ## Table of Contents
 1. [Loading & Initial Inspection](#loading--initial-inspection)
