@@ -37,21 +37,54 @@ def edituser(request, pk):
     except User.DoesNotExist:
         return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
     
-    if not request.user.is_superuser and request.user.id != user.id:
+    if not (request.user.is_superuser or request.user.id == user.id):
         return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
 
     serializer = UserSerializer(user, data=request.data, partial=True)
     if serializer.is_valid():
-        if 'password' in serializer.validated_data:
-            user.set_password(serializer.validated_data['password'])
+        password = serializer.validated_data.pop('password', None)
+        serializer.save()
+
+        if password:
+            user.set_password(password)
             user.save()
-    
-            del serializer.validated_data['password'] 
-        else:
-             serializer.save()
-             
+
         return Response(UserSerializer(user).data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+@transaction.atomic
+def update_password(request, pk):
+    try:
+        user = User.objects.get(pk=pk)
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    if not request.user.is_superuser and request.user.id != user.id:
+        return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+
+    current_password = request.data.get('password')
+    new_password = request.data.get('new_password')
+
+    if not new_password:
+        return Response({'error': 'New password is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if not request.user.is_superuser:
+        if not current_password:
+            return Response({'error': 'Current password is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not user.check_password(current_password):
+            return Response({'error': 'Current password is incorrect'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if current_password == new_password:
+            return Response({'error': 'New password cannot be the same as the current password'}, status=status.HTTP_400_BAD_REQUEST)
+
+    user.set_password(new_password)
+    user.save()
+
+    return Response({'message': 'Password updated successfully'}, status=status.HTTP_200_OK)
+
 
 @api_view(['DELETE'])
 @permission_classes([IsAdminUser])
@@ -101,12 +134,11 @@ def sign_in(request):
         return Response({
             'user': UserSerializer(user).data,
             'message': f'{role} Login successful',
-            'redirect_url': '/dashboard' 
         }, status=status.HTTP_200_OK)
     
     return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
 
-@api_view(['POST'])
+@api_view(['GET','POST'])
 def sign_out(request):
     logout(request)
     return Response({'message': 'Logged out successfully'}, status=status.HTTP_200_OK)
@@ -128,7 +160,7 @@ def forget_password(request):
         return Response({'message': 'If email exists, a reset link has been sent.'}, status=status.HTTP_200_OK)
 
     token_obj, created = PasswordResetToken.objects.get_or_create(user=user)
-    reset_link = f"http://localhost:3000/reset-password/{token_obj.token}/"
+    reset_link = f"http://localhost:3000/resetpassword/{token_obj.token}/"
     
     subject = "Password Reset Request"
     message = f"Click the link to reset your password: {reset_link}"

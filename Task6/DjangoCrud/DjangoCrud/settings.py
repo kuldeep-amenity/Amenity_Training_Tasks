@@ -26,6 +26,8 @@ SECRET_KEY = "django-insecure-&25z*yhbat-gv2rvay*9#(&y5s(b^-96+1fc2#djhwdb73hz4p
 DEBUG = True
 
 ALLOWED_HOSTS = []
+
+
 INSTALLED_APPS = [
     "django.contrib.admin", 
     "django.contrib.auth",
@@ -110,6 +112,7 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
@@ -120,4 +123,4 @@ REST_FRAMEWORK = {
 }
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-EMAIL_HOST_USER = 'admin@djangocrud.com'
+EMAIL_HOST_USER = 'djtapodhan143@gmail.com'
