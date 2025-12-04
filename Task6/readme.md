@@ -12,7 +12,7 @@ A complete Django REST API for user management with authentication, authorizatio
 - Transaction-safe database operations
 
 ## Tech Stack
-- **Framework:** Django 5.2.6
+- **Framework:** Django 5.2.9
 - **API:** Django REST Framework
 - **Database:** SQLite3
 - **Authentication:** Session-based
