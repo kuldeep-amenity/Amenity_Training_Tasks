@@ -120,7 +120,7 @@ def del_user(request, pk):
 
 # User sign up (Admin can create users)
 @api_view(['POST'])
-@permission_classes([IsAdminUser]) 
+@permission_classes([AllowAny]) 
 @parser_classes([MultiPartParser, FormParser, JSONParser])  # Support file uploads
 @transaction.atomic
 def sign_up(request):
