@@ -2,12 +2,16 @@ from django.contrib.auth import authenticate, login, logout  # Functions for use
 from django.contrib.auth.hashers import make_password       # Function to hash passwords
 from django.core.mail import send_mail                      # Function to send emails
 from django.conf import settings                             # Access Django settings (e.g., EMAIL_HOST_USER)
-from rest_framework.decorators import api_view, permission_classes  # Decorators for API views and permission control
+from django.utils import timezone                            # Import timezone for OTP timestamp
+from rest_framework.decorators import api_view, permission_classes, parser_classes  # Decorators for API views and permission control
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser  # Permission classes for API endpoints
 from rest_framework.response import Response                # Standard API response object
 from rest_framework import status                            # HTTP status codes
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser  # Parsers for handling file uploads
 from django.db import transaction                            # For atomic database transactions
-from .models import User, PasswordResetToken                # Import custom User model and password reset token model
+import random
+from datetime import timedelta
+from .models import User, PasswordResetOTP                 # Import custom User model and OTP model
 from .serializer import UserSerializer, ForgotPasswordSerializer, ResetPasswordSerializer  # Import serializers for user and password operations
 
 
@@ -23,6 +27,7 @@ def getusers(request):
 # Add a new user (Admin only)
 @api_view(['POST'])
 @permission_classes([IsAdminUser])
+@parser_classes([MultiPartParser, FormParser, JSONParser])  # Support file uploads
 @transaction.atomic
 def adduser(request):
     serializer = UserSerializer(data=request.data)  # Get user data
@@ -33,8 +38,9 @@ def adduser(request):
 
 
 # Edit an existing user (User themself or superuser)
-@api_view(['PUT'])
+@api_view(['PUT', 'PATCH'])
 @permission_classes([IsAuthenticated])
+@parser_classes([MultiPartParser, FormParser, JSONParser])  # Support file uploads
 @transaction.atomic
 def edituser(request, pk):
     try:
@@ -115,6 +121,7 @@ def del_user(request, pk):
 # User sign up (Admin can create users)
 @api_view(['POST'])
 @permission_classes([IsAdminUser]) 
+@parser_classes([MultiPartParser, FormParser, JSONParser])  # Support file uploads
 @transaction.atomic
 def sign_up(request):
     serializer = UserSerializer(data=request.data)
@@ -159,7 +166,72 @@ def sign_out(request):
     return Response({'message': 'Logged out successfully'}, status=status.HTTP_200_OK)
 
 
-# Forgot password (send reset link)
+# Forgot password (send reset link) -- old token-based method
+
+
+# @api_view(['POST'])
+# @permission_classes([AllowAny])
+# def forget_password(request):
+#     serializer = ForgotPasswordSerializer(data=request.data)
+#     if not serializer.is_valid():
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     
+#     email = serializer.validated_data['email']
+
+#     # Try to find user by email
+#     try:
+#         user = User.objects.get(email=email)
+#     except User.DoesNotExist:
+#         # Do not reveal if user exists (security)
+#         return Response({'message': 'If email exists, a reset link has been sent.'}, status=status.HTTP_200_OK)
+
+#     # Create or reuse existing token
+#     token_obj, created = PasswordResetToken.objects.get_or_create(user=user)
+#     reset_link = f"http://localhost:8000/resetpassword/{token_obj.token}/"
+#     
+#     subject = "Password Reset Request"
+#     message = f"Click the link to reset your password: {reset_link}"
+#     from_email = settings.EMAIL_HOST_USER
+#     
+#     try:
+#         send_mail(subject, message, from_email, [email], fail_silently=False)  # Send email
+#     except Exception as e:
+#         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+#     return Response({'message': 'Reset link sent to your email.'}, status=status.HTTP_200_OK)
+# 
+
+# Reset password using token -- old token-based method
+
+# @api_view(['POST'])
+# @permission_classes([AllowAny])
+# @transaction.atomic
+# def reset_password(request):
+#     serializer = ResetPasswordSerializer(data=request.data)
+#     if not serializer.is_valid():
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     
+#     token = serializer.validated_data['token']
+#     new_password = serializer.validated_data['new_password']
+#     
+#     # Check token validity
+#     try:
+#         reset_token = PasswordResetToken.objects.get(token=token)
+#     except PasswordResetToken.DoesNotExist:
+#         return Response({'error': 'Invalid or expired token'}, status=status.HTTP_400_BAD_REQUEST)
+#     
+#     # Update user's password
+#     user = reset_token.user
+#     user.set_password(new_password)
+#     user.save()
+
+#     # Delete token after use
+#     reset_token.delete()
+#     
+#     return Response({'message': 'Password has been reset successfully'}, status=status.HTTP_200_OK)
+
+
+# Forgot password (send OTP)
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def forget_password(request):
@@ -174,14 +246,14 @@ def forget_password(request):
         user = User.objects.get(email=email)
     except User.DoesNotExist:
         # Do not reveal if user exists (security)
-        return Response({'message': 'If email exists, a reset link has been sent.'}, status=status.HTTP_200_OK)
+        return Response({'message': 'If email exists, an OTP has been sent.'}, status=status.HTTP_200_OK)
 
-    # Create or reuse existing token
-    token_obj, created = PasswordResetToken.objects.get_or_create(user=user)
-    reset_link = f"http://localhost:3000/resetpassword/{token_obj.token}/"
-    
-    subject = "Password Reset Request"
-    message = f"Click the link to reset your password: {reset_link}"
+    # Generate 6-digit OTP and save
+    otp = f"{random.randint(100000, 999999)}"
+    PasswordResetOTP.objects.update_or_create(user=user, defaults={'otp': otp, 'created_at': timezone.now()})
+
+    subject = "Password Reset OTP"
+    message = f"Your password reset OTP is: {otp}. It is valid for 10 minutes."
     from_email = settings.EMAIL_HOST_USER
     
     try:
@@ -189,10 +261,10 @@ def forget_password(request):
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    return Response({'message': 'Reset link sent to your email.'}, status=status.HTTP_200_OK)
+    return Response({'message': 'OTP sent to your email.'}, status=status.HTTP_200_OK)
 
 
-# Reset password using token
+# Reset password using OTP
 @api_view(['POST'])
 @permission_classes([AllowAny])
 @transaction.atomic
@@ -201,21 +273,27 @@ def reset_password(request):
     if not serializer.is_valid():
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    token = serializer.validated_data['token']
+    email = serializer.validated_data['email']
+    otp = serializer.validated_data['otp']
     new_password = serializer.validated_data['new_password']
     
-    # Check token validity
+    # Check OTP validity
     try:
-        reset_token = PasswordResetToken.objects.get(token=token)
-    except PasswordResetToken.DoesNotExist:
-        return Response({'error': 'Invalid or expired token'}, status=status.HTTP_400_BAD_REQUEST)
+        user = User.objects.get(email=email)
+        otp_obj = PasswordResetOTP.objects.get(user=user, otp=otp)
+    except (User.DoesNotExist, PasswordResetOTP.DoesNotExist):
+        return Response({'error': 'Invalid email or OTP'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Check if OTP is expired (10 minutes)
+    if timezone.now() - otp_obj.created_at > timedelta(minutes=10):
+        otp_obj.delete()
+        return Response({'error': 'OTP has expired'}, status=status.HTTP_400_BAD_REQUEST)
     
     # Update user's password
-    user = reset_token.user
     user.set_password(new_password)
     user.save()
 
-    # Delete token after use
-    reset_token.delete()
+    # Delete OTP after use
+    otp_obj.delete()
     
     return Response({'message': 'Password has been reset successfully'}, status=status.HTTP_200_OK)

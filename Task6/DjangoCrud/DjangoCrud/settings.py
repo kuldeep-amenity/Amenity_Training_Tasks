@@ -11,7 +11,9 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
+# Initialize environment variables
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,7 +27,16 @@ SECRET_KEY = "django-insecure-&25z*yhbat-gv2rvay*9#(&y5s(b^-96+1fc2#djhwdb73hz4p
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "192.168.0.213",
+    "localhost",
+    "shawanda-abiding-rayne.ngrok-free.dev",
+    "127.0.0.1",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://shawanda-abiding-rayne.ngrok-free.dev"
+]
 
 
 INSTALLED_APPS = [
@@ -65,6 +76,9 @@ TEMPLATES = [
         },
     },
 ]
+
+
+ 
 
 WSGI_APPLICATION = "DjangoCrud.wsgi.application"
 
@@ -107,7 +121,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = "static/"
-
+# Media files configuration
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -122,5 +138,17 @@ REST_FRAMEWORK = {
     ]
 }
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Emails will be printed to console instead of sending
-EMAIL_HOST_USER = 'kuldeep.t@amenitytech.ai'  # Default "from" email address for sending emails
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Emails will be printed to console instead of sending
+# EMAIL_HOST_USER = 'kuldeep.t@amenitytech.ai'  # Default "from" email address for sending emails
+
+# Use SMTP backend for live emails
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+# SMTP server details
+EMAIL_HOST = 'smtp.gmail.com'          # Gmail SMTP server
+EMAIL_PORT = 587                       # TLS port
+EMAIL_USE_TLS = True                   # Use TLS for security
+
+# Load email credentials from environment variables
+EMAIL_HOST_USER = 'djtapodhan143@gmail.com'   
+EMAIL_HOST_PASSWORD = 'ubnsltzzrcitqpve'   

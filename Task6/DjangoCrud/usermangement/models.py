@@ -40,10 +40,19 @@ class User(AbstractUser):
         return f"{self.first_name} {self.last_name} - {self.email}"  # String representation
 
 
-class PasswordResetToken(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)  # Link token to user
-    token = models.UUIDField(default=uuid.uuid4, editable=False)  # Unique reset token
-    created_at = models.DateTimeField(auto_now_add=True)  # Timestamp of creation
+# class PasswordResetToken(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)  # Link token to user
+#     token = models.UUIDField(default=uuid.uuid4, editable=False)  # Unique reset token
+#     created_at = models.DateTimeField(auto_now_add=True)  # Timestamp of creation
+
+#     def __str__(self):
+#         return f"Reset Token for {self.user.email}"  # String representation
+
+
+class PasswordResetOTP(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    otp = models.CharField(max_length=6)  # 6-digit OTP
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Reset Token for {self.user.email}"  # String representation
+        return f"OTP for {self.user.email}"

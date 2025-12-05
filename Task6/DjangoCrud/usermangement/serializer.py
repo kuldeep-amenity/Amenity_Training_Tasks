@@ -24,5 +24,7 @@ class ForgotPasswordSerializer(serializers.Serializer):
 
 # Serializer for resetting password
 class ResetPasswordSerializer(serializers.Serializer):
-    token = serializers.UUIDField()  # Token sent to user
-    new_password = serializers.CharField(min_length=6)  # New password with minimum length
+    email = serializers.EmailField()  # User email
+    otp = serializers.CharField(max_length=6)  # OTP from email
+    new_password = serializers.CharField(min_length=6)  # New password
+

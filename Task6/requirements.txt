@@ -3,3 +3,4 @@ djangorestframework
 django-phonenumber-field
 phonenumbers
 Pillow
+django-environ

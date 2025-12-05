@@ -6,7 +6,7 @@ A complete Django REST API for user management with authentication, authorizatio
 ## Key Features
 - Complete user CRUD operations with proper permissions
 - User registration and authentication system
-- Secure password reset flow with email tokens
+- Secure password reset flow with email OTP
 - Role-based access control (Admin/User)
 - Custom user model using email as primary identifier
 - Transaction-safe database operations
@@ -26,9 +26,10 @@ A complete Django REST API for user management with authentication, authorizatio
 - Fields: email (unique), first_name, last_name, address, password, profile_picture, phone_number
 - Email used as username field
 
-### PasswordResetToken
-- Links user to UUID token for password resets
-- Auto-generated token with timestamp
+### PasswordResetOTP
+- Links user to OTP for password resets
+- 6-digit OTP with timestamp
+- Valid for 10 minutes
 
 ## API Endpoints
 
@@ -45,8 +46,8 @@ A complete Django REST API for user management with authentication, authorizatio
 - `GET/POST /api/signout/` - Logout
 
 ### Password Reset
-- `POST /api/forgetpassword/` - Request reset link via email
-- `POST /api/resetpassword/` - Reset password with token
+- `POST /api/forgetpassword/` - Request OTP via email
+- `POST /api/resetpassword/` - Reset password with OTP
 
 ## Setup
 
@@ -95,7 +96,7 @@ python manage.py runserver
 ```
 DjangoCrud/
 ├── usermangement/          # Main app
-│   ├── models.py          # User & PasswordResetToken models
+│   ├── models.py          # User & PasswordResetOTP models
 │   ├── serializer.py      # DRF serializers
 │   ├── views.py           # API endpoints
 │   └── urls.py            # App URL routing
@@ -114,7 +115,7 @@ DjangoCrud/
 
 ## Request/Response Examples
 
-### 1. Get All Users
+### 1. Get All Users (Authenticated)
 ```json
 GET /api/getusers/
 Headers: Session cookie required
@@ -166,7 +167,7 @@ Error Response (400 BAD REQUEST):
 }
 ```
 
-### 3. Edit User
+### 3. Edit User (Owner or Admin)
 ```json
 PUT /api/edituser/1/
 Headers: Session cookie required
@@ -196,7 +197,7 @@ Error Response (403 FORBIDDEN):
 }
 ```
 
-### 4. Update Password
+### 4. Update Password (Owner or Admin)
 ```json
 PUT /api/updatepassword/1/
 Headers: Session cookie required
@@ -267,7 +268,7 @@ Response (201 CREATED):
 }
 ```
 
-### 7. Sign In
+### 7. Sign In (Public)
 ```json
 POST /api/signin/
 {
@@ -304,7 +305,7 @@ Error Response (401 UNAUTHORIZED):
 }
 ```
 
-### 8. Sign Out
+### 8. Sign Out (Public)
 ```json
 GET /api/signout/
 or
@@ -316,7 +317,7 @@ Response (200 OK):
 }
 ```
 
-### 9. Forget Password
+### 9. Forget Password (Public)
 ```json
 POST /api/forgetpassword/
 {
@@ -325,7 +326,7 @@ POST /api/forgetpassword/
 
 Response (200 OK):
 {
-  "message": "Reset link sent to your email."
+  "message": "OTP sent to your email."
 }
 
 Note: Same response even if email doesn't exist (security)
@@ -336,11 +337,12 @@ Error Response (500 INTERNAL SERVER ERROR):
 }
 ```
 
-### 10. Reset Password
+### 10. Reset Password (Public)
 ```json
 POST /api/resetpassword/
 {
-  "token": "550e8400-e29b-41d4-a716-446655440000",
+  "email": "raj.patel@example.com",
+  "otp": "123456",
   "new_password": "newpassword123"
 }
 
@@ -351,12 +353,18 @@ Response (200 OK):
 
 Error Response (400 BAD REQUEST):
 {
-  "error": "Invalid or expired token"
+  "error": "Invalid email or OTP"
 }
 
 Error Response (400 BAD REQUEST):
 {
-  "token": ["This field is required."],
+  "error": "OTP has expired"
+}
+
+Error Response (400 BAD REQUEST):
+{
+  "email": ["This field is required."],
+  "otp": ["This field is required."],
   "new_password": ["Ensure this field has at least 6 characters."]
 }
 ```
