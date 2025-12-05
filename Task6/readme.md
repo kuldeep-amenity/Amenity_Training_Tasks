@@ -54,18 +54,23 @@ A complete Django REST API for user management with authentication, authorizatio
 pip install django djangorestframework
 ```
 
-2. Run migrations:
+2. Requirements installation:
+```bash
+pip install -r requirements.txt
+```
+
+3. Run migrations:
 ```bash
 python manage.py makemigrations
 python manage.py migrate
 ```
 
-3. Create superuser:
+4. Create superuser:
 ```bash
 python manage.py createsuperuser
 ```
 
-4. Run server:
+5. Run server:
 ```bash
 python manage.py runserver
 ```

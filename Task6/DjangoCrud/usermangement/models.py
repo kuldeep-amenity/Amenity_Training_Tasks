@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from phonenumber_field.modelfields import PhoneNumberField
 import uuid
 
 class CustomUserManager(BaseUserManager):
@@ -23,7 +24,8 @@ class User(AbstractUser):
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
     address = models.CharField(max_length=255)
-    
+    profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True) # newly added new migrastions
+    phone_number = PhoneNumberField(blank=True, null=True) # newly added new migrastions
     
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name']
