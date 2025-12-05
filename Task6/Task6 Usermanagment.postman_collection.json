@@ -1,0 +1,278 @@
+{
+	"info": {
+		"_postman_id": "837a0b9f-42e1-4aec-94a6-d4e46e217fea",
+		"name": "Task6 Usermanagment",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "46654016",
+		"_collection_link": "https://galactic-water-758893.postman.co/workspace/My-Workspace~e8c108aa-6e21-4d49-8c47-71dd8c85a4ab/collection/46654016-837a0b9f-42e1-4aec-94a6-d4e46e217fea?action=share&source=collection_link&creator=46654016"
+	},
+	"item": [
+		{
+			"name": "signin",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\":\"admin123@gmail.com\",\r\n    \"password\":\"Admin@123\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/signin/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"signin",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Getusers",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/getusers/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"getusers",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Edit_Users",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "csrftoken=XR5xIuLr8SmlABfH2gU1cKmKmlagdr8f"
+					},
+					{
+						"key": "X-CSRFToken",
+						"value": "XR5xIuLr8SmlABfH2gU1cKmKmlagdr8f"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"address\": \"RunwayHeight,Ayodhya Chock,Rajkot\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/edituser/2/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"edituser",
+						"2",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add_User",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "csrftoken=XR5xIuLr8SmlABfH2gU1cKmKmlagdr8f"
+					},
+					{
+						"key": "X-CSRFToken",
+						"value": "XR5xIuLr8SmlABfH2gU1cKmKmlagdr8f"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"first_name\": \"Amit\",\r\n  \"last_name\": \"Mehta\",\r\n  \"email\": \"amit.mehta@example.com\",\r\n  \"address\": \"150 Feet Ring Road, Rajkot\",\r\n  \"password\": \"password123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/adduser/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"adduser",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete_User",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "csrftoken=XR5xIuLr8SmlABfH2gU1cKmKmlagdr8f"
+					},
+					{
+						"key": "X-CSRFToken",
+						"value": "XR5xIuLr8SmlABfH2gU1cKmKmlagdr8f"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"first_name\": \"Amit\",\r\n  \"last_name\": \"Mehta\",\r\n  \"email\": \"amit.mehta@example.com\",\r\n  \"address\": \"150 Feet Ring Road, Rajkot\",\r\n  \"password\": \"password123\"\r\n}"
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/deleteuser/5/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"deleteuser",
+						"5",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Sign_out",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/signout/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"signout",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Sign_up",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-CSRFToken",
+						"value": "bIymiNHc1q93aBrRE0nHnLDYLowpf7s6"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"first_name\": \"Karan\",\r\n  \"last_name\": \"Desai\",\r\n  \"email\": \"karan.desai@example.com\",\r\n  \"address\": \"Lal Baug Road, Vadodara\",\r\n  \"password\": \"Karan@1234\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/signup/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"signup",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
