@@ -11,11 +11,16 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import environ
 import os
 
-# Initialize environment variables
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Initialize environment variables
+env = environ.Env()
+
+# Read .env file
+env.read_env(BASE_DIR / ".env")
 
 
 # Quick-start development settings - unsuitable for production
@@ -150,5 +155,5 @@ EMAIL_PORT = 587                       # TLS port
 EMAIL_USE_TLS = True                   # Use TLS for security
 
 # Load email credentials from environment variables
-EMAIL_HOST_USER = 'djtapodhan143@gmail.com'   
-EMAIL_HOST_PASSWORD = 'ubnsltzzrcitqpve'   
+EMAIL_HOST_USER = env("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
