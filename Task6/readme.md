@@ -17,12 +17,13 @@ A complete Django REST API for user management with authentication, authorizatio
 - **Database:** SQLite3
 - **Authentication:** Session-based
 - **Email:** Console backend (development)
+- **Image Handling:** Pillow (for profile pictures and image fields)
 
 ## Models
 
 ### User
 - Custom user model extending AbstractUser
-- Fields: email (unique), first_name, last_name, address, password
+- Fields: email (unique), first_name, last_name, address, password, profile_picture, phone_number
 - Email used as username field
 
 ### PasswordResetToken
