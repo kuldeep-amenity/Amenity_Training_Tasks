@@ -1,0 +1,618 @@
+{
+	"info": {
+		"_postman_id": "73fd4c0a-3077-4fa1-b206-c4dc61a095de",
+		"name": "Usermanagment",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "46654016",
+		"_collection_link": "https://galactic-water-758893.postman.co/workspace/My-Workspace~e8c108aa-6e21-4d49-8c47-71dd8c85a4ab/collection/46654016-73fd4c0a-3077-4fa1-b206-c4dc61a095de?action=share&source=collection_link&creator=46654016"
+	},
+	"item": [
+		{
+			"name": "http://127.0.0.1:8000/api/signup/",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"first_name\": \"Tushar\",\r\n  \"last_name\": \"Sindhav\",\r\n  \"email\": \"tusharsindhav09@gmail.com\",\r\n  \"address\": \"samaras boys hostel rajkot\",\r\n  \"password\": \"Tushar@123\",\r\n  \"confirm_password\": \"Tushar@123\",\r\n  \"phone_number\": \"+919099309207\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/signup/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"signup",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:8000/api/verifyemail/",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"tusharsindhav09@gmail.com\",\r\n  \"otp\": \"152364\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/verifyemail/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"verifyemail",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:8000/api/signin/",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"tusharsindhav09@gmail.com\",\r\n  \"password\": \"Tushar@123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/signin/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"signin",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:8000/api/getusers/",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"tusharsindhav09@gmail.com\",\r\n  \"password\": \"Tushar@123\"\r\n}"
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/getusers/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"getusers",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:8000/api/edituser/5/",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "X-CSRFToken",
+						"value": "jWHgApd2fFdrH50croIP469RbaqH5uL3"
+					},
+					{
+						"key": "Cookie",
+						"value": "csrftoken=jWHgApd2fFdrH50croIP469RbaqH5uL3"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n \"phone_number\": \"+919876543211\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/edituser/5/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"edituser",
+						"5",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:8000/api/changepassword/",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "csrftoken=jWHgApd2fFdrH50croIP469RbaqH5uL3"
+					},
+					{
+						"key": "X-CSRFToken",
+						"value": "{{csrf_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"old_password\": \"Tushar@123\",\r\n  \"new_password\": \"Tushar@456\",\r\n  \"confirm_new_password\": \"Tushar@456\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/changepassword/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"changepassword",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:8000/api/forgetpassword/",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "csrftoken=jWHgApd2fFdrH50croIP469RbaqH5uL3"
+					},
+					{
+						"key": "X-CSRFToken",
+						"value": "{{csrf_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"tusharsindhav09@gmail.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/forgetpassword/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"forgetpassword",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:8000/api/resetpassword/",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "csrftoken=jWHgApd2fFdrH50croIP469RbaqH5uL3"
+					},
+					{
+						"key": "X-CSRFToken",
+						"value": "{{csrf_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"tusharsindhav09@gmail.com\",\r\n  \"otp\": \"983047\",\r\n  \"new_password\": \"Tushar@789\",\r\n  \"confirm_new_password\": \"Tushar@789\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/resetpassword/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"resetpassword",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:8000/api/signout/",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "csrftoken=jWHgApd2fFdrH50croIP469RbaqH5uL3"
+					},
+					{
+						"key": "X-CSRFToken",
+						"value": "{{csrf_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"tusharsindhav09@gmail.com\",\r\n  \"otp\": \"983047\",\r\n  \"new_password\": \"Tushar@789\",\r\n  \"confirm_new_password\": \"Tushar@789\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/signout/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"signout",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Admin login",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "csrftoken=jWHgApd2fFdrH50croIP469RbaqH5uL3"
+					},
+					{
+						"key": "X-CSRFToken",
+						"value": "{{csrf_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"admin123@gmail.com\",\r\n  \"password\": \"Admin@123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/signin/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"signin",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add user by admin",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "csrftoken=kkno6tbB6iS5LIkMDjdLa0VHWcgYlEI9"
+					},
+					{
+						"key": "X-CSRFToken",
+						"value": "kkno6tbB6iS5LIkMDjdLa0VHWcgYlEI9"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"first_name\": \"Vivek\",\r\n  \"last_name\": \"Patel\",\r\n  \"email\": \"viveksarvaiya29@gmail.com\",\r\n  \"address\": \"456, Satellite Road, Ahmedabad, Gujarat - 380015\",\r\n  \"password\": \"Vivek@123\",\r\n  \"confirm_password\": \"Vivek@123\",\r\n  \"phone_number\": \"+919123456789\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/adduser/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"adduser",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Edit user by admin",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "csrftoken=kkno6tbB6iS5LIkMDjdLa0VHWcgYlEI9"
+					},
+					{
+						"key": "X-CSRFToken",
+						"value": "kkno6tbB6iS5LIkMDjdLa0VHWcgYlEI9"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"first_name\": \"Vivek\",\r\n  \"last_name\": \"Patel\",\r\n  \"email\": \"viveksarvaiya29@gmail.com\",\r\n  \"address\": \"456, Satellite Road, Ahmedabad, Gujarat - 380015\",\r\n  \"password\": \"Vivek@123\",\r\n  \"confirm_password\": \"Vivek@123\",\r\n  \"phone_number\": \"+919106613093\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/edituser/6/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"edituser",
+						"6",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update password by admin",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "csrftoken=kkno6tbB6iS5LIkMDjdLa0VHWcgYlEI9"
+					},
+					{
+						"key": "X-CSRFToken",
+						"value": "kkno6tbB6iS5LIkMDjdLa0VHWcgYlEI9"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"new_password\": \"Vivek@456\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/updatepassword/6/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"updatepassword",
+						"6",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "user deleted",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "csrftoken=kkno6tbB6iS5LIkMDjdLa0VHWcgYlEI9"
+					},
+					{
+						"key": "X-CSRFToken",
+						"value": "kkno6tbB6iS5LIkMDjdLa0VHWcgYlEI9"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"new_password\": \"Vivek@456\"\r\n}"
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/deleteuser/6/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"deleteuser",
+						"6",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -18,6 +18,7 @@ class CustomUserManager(BaseUserManager):
     def create_superuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)  # Mark as staff
         extra_fields.setdefault('is_superuser', True)  # Mark as superuser
+        extra_fields.setdefault('is_verified', True)  # Superuser is automatically verified
         return self.create_user(email, password, **extra_fields)
 
 
@@ -27,6 +28,7 @@ class User(AbstractUser):
     first_name = models.CharField(max_length=30)  # User's first name
     last_name = models.CharField(max_length=30)  # User's last name
     address = models.CharField(max_length=255)  # User's address
+    is_verified = models.BooleanField(default=False)  # Flag to track if user has verified email via OTP
 
     profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True)  # Profile image
     phone_number = PhoneNumberField(blank=True, null=True)  # Optional phone number
@@ -56,3 +58,13 @@ class PasswordResetOTP(models.Model):
 
     def __str__(self):
         return f"OTP for {self.user.email}"
+
+
+class EmailVerificationOTP(models.Model):
+    """Model to store OTP for email verification during registration"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  # Link OTP to user
+    otp = models.CharField(max_length=6)  # 6-digit OTP for email verification
+    created_at = models.DateTimeField(auto_now_add=True)  # Timestamp when OTP was created
+
+    def __str__(self):
+        return f"Email Verification OTP for {self.user.email}"
