@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 import environ
 import os
 
@@ -27,44 +28,109 @@ env.read_env(BASE_DIR / ".env")
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-&25z*yhbat-gv2rvay*9#(&y5s(b^-96+1fc2#djhwdb73hz4p"
+SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+# ALLOWED_HOSTS = [
+#    "192.168.0.214",
+#    "http://localhost:3000",
+#     "http://localhost:5173",
+#     "http://127.0.0.1:5173",
+#     "127.0.0.1",
+#     "shawanda-abiding-rayne.ngrok-free.dev",
+#     "localhost",
+#     "https://shawanda-abiding-rayne.ngrok-free.dev",
+#     "*.ngrok-free.dev",
+    
+# ]
 
-ALLOWED_HOSTS = [
-    "192.168.0.213",
-    "localhost",
-    "shawanda-abiding-rayne.ngrok-free.dev",
-    "127.0.0.1",
-]
+ALLOWED_HOSTS = ["*"]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://shawanda-abiding-rayne.ngrok-free.dev"
+    "https://shawanda-abiding-rayne.ngrok-free.dev",
+    "http://localhost:3000",
+    "http://localhost:8000",
+    "http://192.168.0.214:8000",
+    "https://*.ngrok-free.dev",
+    "http://localhost:5173",
+    
 ]
+
+# CORS Configuration - Order and specificity matter for proper preflight handling
+# Use CORS_ALLOW_ALL_ORIGINS for development to fix ngrok issues
+# CORS_ALLOW_ALL_ORIGINS = True  # Set to True for development with ngrok
+
+# If you want to restrict origins in production, comment above and uncomment below:
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://192.168.0.214:8000",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://shawanda-abiding-rayne.ngrok-free.dev",
+    "https://*.ngrok-free.dev",
+    "http://localhost:8000",
+    
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+# Specify explicit methods instead of wildcard for better browser compatibility
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
+
+# Specify explicit headers instead of wildcard when using credentials
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+    "ngrok-skip-browser-warning",
+]
+
+
+# Important: Allow preflight requests to be cached to reduce OPTIONS calls
+CORS_PREFLIGHT_MAX_AGE = 86400  # 24 hours
+
+
 
 
 INSTALLED_APPS = [
+    "corsheaders", # Allowing cross-origin requests for API access 
     "django.contrib.admin", 
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'rest_framework_simplejwt',  # JWT authentication support
     "rest_framework",# Django REST Framework for building APIs
-    'rest_framework.authtoken',
+    # 'rest_framework.authtoken',
     "usermangement", # Custom app handling user management features
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",  # Middleware to handle CORS headers - MUST be at the top
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.common.CommonMiddleware",
+    "django.middleware.common.CommonMiddleware", # Standard Django middleware for common tasks
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
 
 ROOT_URLCONF = "DjangoCrud.urls"
 
@@ -86,7 +152,7 @@ TEMPLATES = [
 
  
 
-WSGI_APPLICATION = "DjangoCrud.wsgi.application"
+WSGI_APPLICATION = "DjangoCrud.wsgi.application" # WSGI application entry point
 
 
 # Database
@@ -122,7 +188,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
@@ -137,11 +202,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',  # Use session-based authentication for API requests
-        'rest_framework.authentication.TokenAuthentication'
+        "rest_framework_simplejwt.authentication.JWTAuthentication" # Use JWT authentication for API requests
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',  # Require authentication by default for all API views
+        'rest_framework.permissions.AllowAny',  # Changed to AllowAny to allow signup without authentication
     ]
 }
 
@@ -159,3 +223,14 @@ EMAIL_USE_TLS = True                   # Use TLS for security
 # Load email credentials from environment variables
 EMAIL_HOST_USER = env("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+
+SIMPLE_JWT = {
+    "USER_ID_FIELD": "id",
+    "USER_ID_CLAIM": "user_id",
+}
+ 
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=int(os.getenv("ACCESS_TOKEN_LIFETIME"))),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=int(os.getenv("REFRESH_TOKEN_LIFETIME"))),
+}
+

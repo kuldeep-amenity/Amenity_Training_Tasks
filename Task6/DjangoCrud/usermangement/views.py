@@ -8,7 +8,14 @@ from rest_framework.response import Response  # Standard API response object
 from rest_framework import status  # HTTP status codes
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser  # Parsers for handling file uploads
 from django.db import transaction  # For atomic database transactions
+from rest_framework.authentication import TokenAuthentication  # Token-based authentication
+from rest_framework.decorators import authentication_classes  # Token-based authentication
+from rest_framework_simplejwt.tokens import RefreshToken  # JWT token management
 import random
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+
+
+
 from datetime import timedelta
 from .models import User, PasswordResetOTP, EmailVerificationOTP  # Import custom User model and OTP models
 from .serializer import (
@@ -42,7 +49,6 @@ def create_response(success, message, data=None, errors=None, status_code=status
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getusers(request):
-
     users = User.objects.all()  # Fetch all users
     serializer = UserSerializer(users, many=True)  # Serialize list of users
     return create_response(
@@ -275,6 +281,7 @@ def sign_up(request):
 # Email verification using OTP
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@authentication_classes([])
 @transaction.atomic
 def verify_email(request):
     serializer = VerifyEmailSerializer(data=request.data)
@@ -328,6 +335,7 @@ def verify_email(request):
 # User login
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@authentication_classes([])
 def sign_in(request):
     serializer = LoginSerializer(data=request.data)
     
@@ -354,6 +362,8 @@ def sign_in(request):
     
     # Check if user has verified their email
     if not user.is_verified:
+        
+        
         return create_response(
             success=False,
             message='Please verify your email first. Check your inbox for the OTP.',
@@ -364,16 +374,20 @@ def sign_in(request):
     
     role = "Superuser" if user.is_superuser else "User"
     
+    
+    refresh=RefreshToken.for_user(user)
+    access_token=str(refresh.access_token)
     return create_response(
         success=True,
         message=f'{role} login successful',
-        data={'user': UserSerializer(user).data},
+        data={'user': UserSerializer(user).data, 'access_token': str(access_token), 'refresh_token': str(refresh), 'role': role},
         status_code=status.HTTP_200_OK
     )
 
 
 # Logout user
 @api_view(['GET','POST'])
+@authentication_classes([])
 @permission_classes([AllowAny])
 def sign_out(request):
     logout(request)  # End session
@@ -398,11 +412,10 @@ def view_profile(request):
         status_code=status.HTTP_200_OK
     )
 
-
 # Edit user profile
 @api_view(['PUT', 'PATCH'])
 @permission_classes([IsAuthenticated])
-@parser_classes([MultiPartParser, FormParser, JSONParser])  # Support file uploads
+@parser_classes([MultiPartParser, FormParser, JSONParser])
 @transaction.atomic
 def edit_profile(request):
     user = request.user
@@ -416,15 +429,14 @@ def edit_profile(request):
             status_code=status.HTTP_400_BAD_REQUEST
         )
     
-    serializer.save()
+    updated_user = serializer.save()
     
     return create_response(
         success=True,
         message='Profile updated successfully',
-        data={'user': UserProfileSerializer(user).data},
+        data={'user': UserProfileSerializer(updated_user).data},
         status_code=status.HTTP_200_OK
     )
-
 
 # Change password (requires old password)
 @api_view(['POST'])
@@ -475,6 +487,7 @@ def change_password(request):
 # Forgot password (send OTP)
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@authentication_classes([])
 def forget_password(request):
     serializer = ForgotPasswordSerializer(data=request.data)
     if not serializer.is_valid():
@@ -526,6 +539,7 @@ def forget_password(request):
 # Reset password using OTP
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@authentication_classes([])
 @transaction.atomic
 def reset_password(request):
 
