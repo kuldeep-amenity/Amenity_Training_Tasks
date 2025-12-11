@@ -1,14 +1,14 @@
 {
 	"info": {
-		"_postman_id": "73fd4c0a-3077-4fa1-b206-c4dc61a095de",
+		"_postman_id": "2f1885d5-8d74-452a-a146-938e73aa24c2",
 		"name": "Usermanagment",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "46654016",
-		"_collection_link": "https://galactic-water-758893.postman.co/workspace/My-Workspace~e8c108aa-6e21-4d49-8c47-71dd8c85a4ab/collection/46654016-73fd4c0a-3077-4fa1-b206-c4dc61a095de?action=share&source=collection_link&creator=46654016"
+		"_exporter_id": "50740803",
+		"_collection_link": "https://kuldeep-t-3039825.postman.co/workspace/Kuldeep-Tapodhan's-Workspace~205d047e-9d63-4b56-85c5-9b5f13738d58/collection/50740803-2f1885d5-8d74-452a-a146-938e73aa24c2?action=share&source=collection_link&creator=50740803"
 	},
 	"item": [
 		{
-			"name": "http://127.0.0.1:8000/api/signup/",
+			"name": "Sign-Up",
 			"request": {
 				"auth": {
 					"type": "noauth"
@@ -17,7 +17,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"first_name\": \"Tushar\",\r\n  \"last_name\": \"Sindhav\",\r\n  \"email\": \"tusharsindhav09@gmail.com\",\r\n  \"address\": \"samaras boys hostel rajkot\",\r\n  \"password\": \"Tushar@123\",\r\n  \"confirm_password\": \"Tushar@123\",\r\n  \"phone_number\": \"+919099309207\"\r\n}",
+					"raw": "{\r\n  \"first_name\": \"Chirag\",\r\n  \"last_name\": \"Vaghela\",\r\n  \"email\": \"chiraghvaghela1010@gmail.com\",\r\n  \"address\": \"samaras boys hostel rajkot\",\r\n  \"password\": \"Chirag@123\",\r\n  \"confirm_password\": \"Chirag@123\",\r\n  \"phone_number\": \"+917575030622\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -25,18 +25,11 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/signup/",
-					"protocol": "http",
+					"raw": "{{baseurll}}signup/",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{baseurll}}signup"
 					],
-					"port": "8000",
 					"path": [
-						"api",
-						"signup",
 						""
 					]
 				}
@@ -44,7 +37,7 @@
 			"response": []
 		},
 		{
-			"name": "http://127.0.0.1:8000/api/verifyemail/",
+			"name": "Verify-Mail",
 			"request": {
 				"auth": {
 					"type": "noauth"
@@ -53,7 +46,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"email\": \"tusharsindhav09@gmail.com\",\r\n  \"otp\": \"152364\"\r\n}",
+					"raw": "{\r\n  \"email\": \"chiraghvaghela1010@gmail.com\",\r\n  \"otp\": \"997164\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -61,18 +54,11 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/verifyemail/",
-					"protocol": "http",
+					"raw": "{{baseurll}}verifyemail/",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{baseurll}}verifyemail"
 					],
-					"port": "8000",
 					"path": [
-						"api",
-						"verifyemail",
 						""
 					]
 				}
@@ -80,16 +66,13 @@
 			"response": []
 		},
 		{
-			"name": "http://127.0.0.1:8000/api/signin/",
+			"name": "Sign-In",
 			"request": {
-				"auth": {
-					"type": "noauth"
-				},
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"email\": \"tusharsindhav09@gmail.com\",\r\n  \"password\": \"Tushar@123\"\r\n}",
+					"raw": "{\r\n  \"email\": \"gagomac410@crsay.com\",\r\n  \"password\": \"LiMing@789\"\r\n}\r\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -97,18 +80,11 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/signin/",
-					"protocol": "http",
+					"raw": "{{baseurll}}signin/",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{baseurll}}signin"
 					],
-					"port": "8000",
 					"path": [
-						"api",
-						"signin",
 						""
 					]
 				}
@@ -116,33 +92,28 @@
 			"response": []
 		},
 		{
-			"name": "http://127.0.0.1:8000/api/getusers/",
+			"name": "Get-User",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
 			"request": {
-				"auth": {
-					"type": "noauth"
-				},
 				"method": "GET",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"email\": \"tusharsindhav09@gmail.com\",\r\n  \"password\": \"Tushar@123\"\r\n}"
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/getusers/",
-					"protocol": "http",
+					"raw": "{{baseurll}}getusers/",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{baseurll}}getusers"
 					],
-					"port": "8000",
 					"path": [
-						"api",
-						"getusers",
 						""
 					]
 				}
@@ -150,11 +121,32 @@
 			"response": []
 		},
 		{
-			"name": "http://127.0.0.1:8000/api/edituser/5/",
+			"name": "View-Profile",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
 			"request": {
-				"auth": {
-					"type": "noauth"
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"tusharsindhav09@gmail.com\",\r\n  \"otp\": \"152364\"\r\n}"
 				},
+				"url": {
+					"raw": "{{baseurll}}viewprofile/",
+					"host": [
+						"{{baseurll}}viewprofile"
+					],
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Edit-Profile",
+			"request": {
 				"method": "PATCH",
 				"header": [
 					{
@@ -168,7 +160,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n \"phone_number\": \"+919876543211\"\r\n}",
+					"raw": "{\r\n     \"address\": \"B-204, Green Park,Rajkot\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -176,19 +168,11 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/edituser/5/",
-					"protocol": "http",
+					"raw": "{{baseurll}}editprofile/",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{baseurll}}editprofile"
 					],
-					"port": "8000",
 					"path": [
-						"api",
-						"edituser",
-						"5",
 						""
 					]
 				}
@@ -196,7 +180,42 @@
 			"response": []
 		},
 		{
-			"name": "http://127.0.0.1:8000/api/changepassword/",
+			"name": "Change-passwrod",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "csrftoken=jWHgApd2fFdrH50croIP469RbaqH5uL3"
+					},
+					{
+						"key": "X-CSRFToken",
+						"value": "{{csrf_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"old_password\": \"LiMing@123\",\r\n  \"new_password\": \"LiMing@456\",\r\n  \"confirm_new_password\": \"LiMing@456\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseurll}}changepassword/",
+					"host": [
+						"{{baseurll}}changepassword"
+					],
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Forget-Password",
 			"request": {
 				"auth": {
 					"type": "noauth"
@@ -214,7 +233,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"old_password\": \"Tushar@123\",\r\n  \"new_password\": \"Tushar@456\",\r\n  \"confirm_new_password\": \"Tushar@456\"\r\n}",
+					"raw": "{\r\n  \"email\": \"gagomac410@crsay.com\"\r\n}\r\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -222,18 +241,11 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/changepassword/",
-					"protocol": "http",
+					"raw": "{{baseurll}}forgetpassword/",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{baseurll}}forgetpassword"
 					],
-					"port": "8000",
 					"path": [
-						"api",
-						"changepassword",
 						""
 					]
 				}
@@ -241,7 +253,7 @@
 			"response": []
 		},
 		{
-			"name": "http://127.0.0.1:8000/api/forgetpassword/",
+			"name": "Reset-Password",
 			"request": {
 				"auth": {
 					"type": "noauth"
@@ -259,7 +271,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"email\": \"tusharsindhav09@gmail.com\"\r\n}",
+					"raw": "{\r\n  \"email\": \"gagomac410@crsay.com\",\r\n  \"otp\": \"696397\",\r\n  \"new_password\": \"LiMing@789\",\r\n  \"confirm_new_password\": \"LiMing@789\"\r\n}\r\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -267,18 +279,11 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/forgetpassword/",
-					"protocol": "http",
+					"raw": "{{baseurll}}resetpassword/",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{baseurll}}resetpassword"
 					],
-					"port": "8000",
 					"path": [
-						"api",
-						"forgetpassword",
 						""
 					]
 				}
@@ -286,52 +291,7 @@
 			"response": []
 		},
 		{
-			"name": "http://127.0.0.1:8000/api/resetpassword/",
-			"request": {
-				"auth": {
-					"type": "noauth"
-				},
-				"method": "POST",
-				"header": [
-					{
-						"key": "Cookie",
-						"value": "csrftoken=jWHgApd2fFdrH50croIP469RbaqH5uL3"
-					},
-					{
-						"key": "X-CSRFToken",
-						"value": "{{csrf_token}}"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n  \"email\": \"tusharsindhav09@gmail.com\",\r\n  \"otp\": \"983047\",\r\n  \"new_password\": \"Tushar@789\",\r\n  \"confirm_new_password\": \"Tushar@789\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://127.0.0.1:8000/api/resetpassword/",
-					"protocol": "http",
-					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
-					],
-					"port": "8000",
-					"path": [
-						"api",
-						"resetpassword",
-						""
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "http://127.0.0.1:8000/api/signout/",
+			"name": "Sign-out",
 			"request": {
 				"auth": {
 					"type": "noauth"
@@ -357,18 +317,11 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/signout/",
-					"protocol": "http",
+					"raw": "{{baseurll}}signout/",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{baseurll}}signout"
 					],
-					"port": "8000",
 					"path": [
-						"api",
-						"signout",
 						""
 					]
 				}
@@ -376,11 +329,8 @@
 			"response": []
 		},
 		{
-			"name": "Admin login",
+			"name": "Admin-Login",
 			"request": {
-				"auth": {
-					"type": "noauth"
-				},
 				"method": "POST",
 				"header": [
 					{
@@ -402,18 +352,11 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/signin/",
-					"protocol": "http",
+					"raw": "{{baseurll}}signin/",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{baseurll}}signin"
 					],
-					"port": "8000",
 					"path": [
-						"api",
-						"signin",
 						""
 					]
 				}
@@ -421,11 +364,8 @@
 			"response": []
 		},
 		{
-			"name": "Add user by admin",
+			"name": "Add-User-By-Admin",
 			"request": {
-				"auth": {
-					"type": "noauth"
-				},
 				"method": "POST",
 				"header": [
 					{
@@ -443,7 +383,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"first_name\": \"Vivek\",\r\n  \"last_name\": \"Patel\",\r\n  \"email\": \"viveksarvaiya29@gmail.com\",\r\n  \"address\": \"456, Satellite Road, Ahmedabad, Gujarat - 380015\",\r\n  \"password\": \"Vivek@123\",\r\n  \"confirm_password\": \"Vivek@123\",\r\n  \"phone_number\": \"+919123456789\"\r\n}",
+					"raw": "{\r\n  \"first_name\": \"Vivek1\",\r\n  \"last_name\": \"Patel1\",\r\n  \"email\": \"viveksarvaiya129@gmail.com\",\r\n  \"address\": \"456, Satellite1 Road, Ahmedabad, Gujarat - 380015\",\r\n  \"password\": \"Vivek@1234\",\r\n  \"confirm_password\": \"Vivek@1234\",\r\n  \"phone_number\": \"+919123456712\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -451,18 +391,11 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/adduser/",
-					"protocol": "http",
+					"raw": "{{baseurll}}adduser/",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{baseurll}}adduser"
 					],
-					"port": "8000",
 					"path": [
-						"api",
-						"adduser",
 						""
 					]
 				}
@@ -470,12 +403,52 @@
 			"response": []
 		},
 		{
-			"name": "Edit user by admin",
+			"name": "Edit-User-By-Admin",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "csrftoken=kkno6tbB6iS5LIkMDjdLa0VHWcgYlEI9"
+					},
+					{
+						"key": "X-CSRFToken",
+						"value": "kkno6tbB6iS5LIkMDjdLa0VHWcgYlEI9"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"first_name\": \"Vivek2\",\r\n  \"last_name\": \"Patel2\",\r\n  \"email\": \"viveksarvaiya29@gmail.com\",\r\n  \"address\": \"456, Satellite Road, Ahmedabad, Gujarat - 380015\",\r\n  \"phone_number\": \"+919106613093\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseurll}}edituser/35/",
+					"host": [
+						"{{baseurll}}edituser"
+					],
+					"path": [
+						"35",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Edit-User-By-Admin Copy",
 			"request": {
 				"auth": {
 					"type": "noauth"
 				},
-				"method": "PUT",
+				"method": "PATCH",
 				"header": [
 					{
 						"key": "Cookie",
@@ -500,18 +473,11 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/edituser/6/",
-					"protocol": "http",
+					"raw": "{{baseurll}}edituser/6/",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{baseurll}}edituser"
 					],
-					"port": "8000",
 					"path": [
-						"api",
-						"edituser",
 						"6",
 						""
 					]
@@ -520,7 +486,7 @@
 			"response": []
 		},
 		{
-			"name": "Update password by admin",
+			"name": "Update-Password-By-Admin",
 			"request": {
 				"auth": {
 					"type": "noauth"
@@ -550,18 +516,11 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/updatepassword/6/",
-					"protocol": "http",
+					"raw": "{{baseurll}}updatepassword/6/",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{baseurll}}updatepassword"
 					],
-					"port": "8000",
 					"path": [
-						"api",
-						"updatepassword",
 						"6",
 						""
 					]
@@ -570,11 +529,8 @@
 			"response": []
 		},
 		{
-			"name": "user deleted",
+			"name": "Delete-User",
 			"request": {
-				"auth": {
-					"type": "noauth"
-				},
 				"method": "DELETE",
 				"header": [
 					{
@@ -595,24 +551,69 @@
 					"raw": "{\r\n  \"new_password\": \"Vivek@456\"\r\n}"
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/deleteuser/6/",
-					"protocol": "http",
+					"raw": "{{baseurll}}deleteuser/33/",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{baseurll}}deleteuser"
 					],
-					"port": "8000",
 					"path": [
-						"api",
-						"deleteuser",
-						"6",
+						"33",
 						""
 					]
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NDQ3Njk1LCJpYXQiOjE3NjU0NDU4OTUsImp0aSI6IjgxMDRiNmVjYjY2NzQ5NTM5NjQ5ZTk5M2VkYmQ0NTlmIiwidXNlcl9pZCI6IjM0In0.0aA34T70BMeQJdKZVizq77Pfu3BenvRKyDNUlcgeRoA",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseurll",
+			"value": ""
+		},
+		{
+			"key": "token",
+			"value": ""
 		}
 	]
 }

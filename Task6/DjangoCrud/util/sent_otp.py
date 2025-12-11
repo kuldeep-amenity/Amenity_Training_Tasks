@@ -6,7 +6,7 @@ from django.conf import settings
 from .responses import create_response
 from .responses import status
 
-# Utility function to send OTP email beacuse it was used twice in main views.py so for code reusability i have added this in the util 
+# Utility function to send OTP email because it was used twice in main views.py so for code reusability i have added this in the util 
 def send_otp(user):
     # Generate 6-digit OTP for email verification
     otp = f"{random.randint(100000, 999999)}"
