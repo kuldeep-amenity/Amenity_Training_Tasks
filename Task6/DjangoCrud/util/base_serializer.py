@@ -118,20 +118,37 @@ def get_full_error_messages(field_name, field_error,error_messages_dict):
 
 
 def get_error_message(serializer_errors, error_messages_dict) -> tuple:
-    print(serializer_errors)
-    error_field = list(serializer_errors.keys())[0]
-    # print("error_field", error_field)
-    # print("error_messages_dict", error_messages_dict)
-    for field_error in serializer_errors.values():
-        if error_field == "non_field_errors":
-            return field_error[0], error_messages_dict[field_error[0]]
+    if not serializer_errors:
+        return None, "Validation failed.", None
 
-        else:
-            return (
-                field_error[0],
-                get_full_error_messages(
-                    field_name=error_field,
-                    field_error=field_error[0],
-                    error_messages_dict=error_messages_dict,
-                ),
+    # Prefer confirm-password style errors first so users see matching problems first
+    priority_keys = ["confirm_password", "confirm_new_password"]
+    keys = list(serializer_errors.keys())
+    error_field = None
+    for pk in priority_keys:
+        if pk in serializer_errors:
+            error_field = pk
+            break
+
+    if not error_field:
+        error_field = keys[0]
+
+    # iterate values but we only need the first field's errors
+    for field_error in serializer_errors.values():
+        # field_error is typically a list of error tokens/strings
+        raw = field_error[0]
+        if error_field == "non_field_errors":
+            friendly = error_messages_dict.get(raw, raw)
+            return raw, friendly, error_field
+
+        try:
+            friendly = get_full_error_messages(
+                field_name=error_field,
+                field_error=raw,
+                error_messages_dict=error_messages_dict,
             )
+        except Exception:
+            # If mapping is not available (e.g. custom validation raised a free-text message),
+            # fall back to the raw error text so clients still see a helpful message.
+            friendly = raw
+        return raw, friendly, error_field

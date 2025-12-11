@@ -29,7 +29,7 @@ from .serializer import (
     ForgotPasswordSerializer, 
     ResetPasswordSerializer
 )
-from .responses import APIResponse
+from util.responses import APIResponse # Standardized API response utility
 
 
 # Utility function to create standardized API responses
@@ -69,7 +69,7 @@ def adduser(request):
     serializer = RegistrationSerializer(data=request.data)  # Get user data with validation
     
     if not serializer.is_valid():
-        return APIResponse.get_serializer_error_response(
+        return APIResponse.get_validation_error_response(
             return_code=APIResponse.Codes.VALIDATION_ERROR,
             serializer_errors=serializer.errors
         )
@@ -113,7 +113,7 @@ def edituser(request, pk):
     serializer = UserSerializer(user, data=request.data, partial=True)
     
     if not serializer.is_valid():
-        return APIResponse.get_serializer_error_response(
+        return APIResponse.get_validation_error_response(
             return_code=APIResponse.Codes.VALIDATION_ERROR,
             serializer_errors=serializer.errors
         )
@@ -202,7 +202,7 @@ def sign_up(request):
     serializer = RegistrationSerializer(data=request.data)
     
     if not serializer.is_valid():
-        return APIResponse.get_serializer_error_response(
+        return APIResponse.get_validation_error_response(
             return_code=APIResponse.Codes.VALIDATION_ERROR,
             serializer_errors=serializer.errors
         )
@@ -249,7 +249,7 @@ def verify_email(request):
     serializer = VerifyEmailSerializer(data=request.data)
     
     if not serializer.is_valid():
-        return APIResponse.get_serializer_error_response(
+        return APIResponse.get_validation_error_response(
             return_code=APIResponse.Codes.VALIDATION_ERROR,
             serializer_errors=serializer.errors
         )
@@ -297,7 +297,7 @@ def sign_in(request):
     serializer = LoginSerializer(data=request.data)
     
     if not serializer.is_valid():
-        return APIResponse.get_serializer_error_response(
+        return APIResponse.get_validation_error_response(
             return_code=APIResponse.Codes.VALIDATION_ERROR,
             serializer_errors=serializer.errors
         )
@@ -392,7 +392,7 @@ def edit_profile(request):
     serializer = EditProfileSerializer(user, data=request.data, partial=True)
     
     if not serializer.is_valid():
-        return APIResponse.get_serializer_error_response(
+        return APIResponse.get_validation_error_response(
             return_code=APIResponse.Codes.VALIDATION_ERROR,
             serializer_errors=serializer.errors
         )
@@ -413,7 +413,7 @@ def change_password(request):
     serializer = ChangePasswordSerializer(data=request.data)
     
     if not serializer.is_valid():
-        return APIResponse.get_serializer_error_response(
+        return APIResponse.get_validation_error_response(
             return_code=APIResponse.Codes.VALIDATION_ERROR,
             serializer_errors=serializer.errors
         )
@@ -453,7 +453,7 @@ def change_password(request):
 def forget_password(request):
     serializer = ForgotPasswordSerializer(data=request.data)
     if not serializer.is_valid():
-        return APIResponse.get_serializer_error_response(
+        return APIResponse.get_validation_error_response(
             return_code=APIResponse.Codes.VALIDATION_ERROR,
             serializer_errors=serializer.errors
         )
@@ -503,7 +503,7 @@ def reset_password(request):
 
     serializer = ResetPasswordSerializer(data=request.data)
     if not serializer.is_valid():
-        return APIResponse.get_serializer_error_response(
+        return APIResponse.get_validation_error_response(
             return_code=APIResponse.Codes.VALIDATION_ERROR,
             serializer_errors=serializer.errors
         )

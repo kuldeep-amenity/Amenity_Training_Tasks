@@ -1,10 +1,11 @@
 from rest_framework import serializers  # Import DRF serializers for converting model instances to JSON and validating input
 from .models import User    # Import the custom User model from current app
 import re  # Regular expressions for password validation
+from util.base_serializer import BaseModelSerializer, BaseSerializerSerializer
 
 
 # Serializer for user model
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(BaseModelSerializer):
     class Meta:
         model = User  # Use the custom User model
         fields = ['id', 'first_name', 'last_name', 'email', 'address', 'password', 'profile_picture', 'phone_number', 'is_verified']  # Fields to include in API
@@ -22,7 +23,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 # Serializer for user registration with password confirmation and enhanced validation
-class RegistrationSerializer(serializers.ModelSerializer):
+class RegistrationSerializer(BaseModelSerializer):
     confirm_password = serializers.CharField(write_only=True)  # Field to confirm password match
     
     class Meta:
@@ -68,7 +69,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
 
 # Serializer for viewing user profile (excludes password)
-class UserProfileSerializer(serializers.ModelSerializer):
+class UserProfileSerializer(BaseModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'first_name', 'last_name', 'email', 'address', 'profile_picture', 'phone_number', 'is_verified']
@@ -76,7 +77,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 
 # Serializer for editing user profile (only allowed fields)
-class EditProfileSerializer(serializers.ModelSerializer):
+class EditProfileSerializer(BaseModelSerializer):
     class Meta:
         model = User
         fields = ['first_name', 'last_name','address', 'phone_number', 'profile_picture']
@@ -85,21 +86,20 @@ class EditProfileSerializer(serializers.ModelSerializer):
             'phone_number': {'required': False, 'allow_null': True}
         }
 
-
 # Serializer for email verification OTP
-class VerifyEmailSerializer(serializers.Serializer):
+class VerifyEmailSerializer(BaseSerializerSerializer):
     email = serializers.EmailField()  # User's email
     otp = serializers.CharField(max_length=6)  # OTP sent to email
 
 
 # Serializer for user login
-class LoginSerializer(serializers.Serializer):
+class LoginSerializer(BaseSerializerSerializer):
     email = serializers.EmailField()  # User's email
     password = serializers.CharField(write_only=True)  # User's password
 
 
 # Serializer for change password (requires old password)
-class ChangePasswordSerializer(serializers.Serializer):
+class ChangePasswordSerializer(BaseSerializerSerializer):
     old_password = serializers.CharField(write_only=True)  # Current password for verification
     new_password = serializers.CharField(write_only=True)  # New password
     confirm_new_password = serializers.CharField(write_only=True)  # Confirmation of new password
@@ -126,12 +126,12 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 
 # Serializer for forgot password request
-class ForgotPasswordSerializer(serializers.Serializer):
+class ForgotPasswordSerializer(BaseSerializerSerializer):
     email = serializers.EmailField()  # Only email is required
 
 
 # Serializer for resetting password with OTP
-class ResetPasswordSerializer(serializers.Serializer):
+class ResetPasswordSerializer(BaseSerializerSerializer):
     email = serializers.EmailField()  # User email
     otp = serializers.CharField(max_length=6)  # OTP from email
     new_password = serializers.CharField(min_length=8, write_only=True)  # New password

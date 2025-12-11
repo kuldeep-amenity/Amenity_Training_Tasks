@@ -1,5 +1,6 @@
 from rest_framework.response import Response
 from rest_framework import status
+from util.base_serializer import get_error_message
 
 
 class APIResponse:
@@ -136,3 +137,31 @@ class APIResponse:
             },
             status=status.HTTP_400_BAD_REQUEST,
         )
+
+    @staticmethod
+    def get_validation_error_response(return_code, serializer_errors, error_messages_dict=None):
+        try:
+            raw, friendly, field_name = get_error_message(
+                serializer_errors, error_messages_dict or {}
+            )
+        except Exception:
+            # Fallback to generic behavior
+            friendly = APIResponse.Codes._error_messages.get(return_code, "Validation error")
+            raw = None
+            field_name = None
+
+        # Build minimal errors payload with only the first field
+        errors_payload = {}
+        if field_name:
+            errors_payload[field_name] = [raw]
+
+        payload = {
+            "success": False,
+            "return_code": return_code,
+            "message": friendly,
+            "errors": errors_payload,
+        }
+        if raw:
+            payload["error_detail"] = raw
+
+        return Response(payload, status=status.HTTP_400_BAD_REQUEST)
