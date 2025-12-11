@@ -29,6 +29,7 @@ from .serializer import (
     ForgotPasswordSerializer, 
     ResetPasswordSerializer
 )
+from .responses import APIResponse
 
 
 # Utility function to create standardized API responses
@@ -51,9 +52,8 @@ def create_response(success, message, data=None, errors=None, status_code=status
 def getusers(request):
     users = User.objects.all()  # Fetch all users
     serializer = UserSerializer(users, many=True)  # Serialize list of users
-    return create_response(
-        success=True,
-        message='Users retrieved successfully',
+    return APIResponse.get_success_response(
+        return_code=APIResponse.Codes.USERS_LIST_RETRIEVED,
         data={'users': serializer.data},
         status_code=status.HTTP_200_OK
     )
@@ -69,11 +69,9 @@ def adduser(request):
     serializer = RegistrationSerializer(data=request.data)  # Get user data with validation
     
     if not serializer.is_valid():
-        return create_response(
-            success=False,
-            message='Validation failed',
-            errors=serializer.errors,
-            status_code=status.HTTP_400_BAD_REQUEST
+        return APIResponse.get_serializer_error_response(
+            return_code=APIResponse.Codes.VALIDATION_ERROR,
+            serializer_errors=serializer.errors
         )
     
     user = serializer.save()  # Create user
@@ -81,35 +79,33 @@ def adduser(request):
     user.is_verified = True
     user.save()
     
-    return create_response(
-        success=True,
-        message='User created successfully',
+    return APIResponse.get_success_response(
+        return_code=APIResponse.Codes.REGISTRATION_SUCCESS,
         data={'user': UserSerializer(user).data},
         status_code=status.HTTP_201_CREATED
     )
 
 
-# Edit an existing user (User themself or superuser)
+# Edit an existing user (Admin only)
 @api_view(['PUT', 'PATCH'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAdminUser])
 @parser_classes([MultiPartParser, FormParser, JSONParser])  # Support file uploads
 @transaction.atomic
 def edituser(request, pk):
 
+   
     try:
         user = User.objects.get(pk=pk)  # Find user by ID
     except User.DoesNotExist:
-        return create_response(
-            success=False,
-            message='User not found',
+        return APIResponse.get_error_response(
+            return_code=APIResponse.Codes.USER_NOT_FOUND,
             status_code=status.HTTP_404_NOT_FOUND
         )
     
-    # Check permission (superuser OR editing own profile)
-    if not (request.user.is_superuser or request.user.id == user.id):
-        return create_response(
-            success=False,
-            message='Permission denied',
+    # Only superuser can edit users
+    if not request.user.is_superuser:
+        return APIResponse.get_error_response(
+            return_code=APIResponse.Codes.PERMISSION_DENIED,
             status_code=status.HTTP_403_FORBIDDEN
         )
 
@@ -117,11 +113,9 @@ def edituser(request, pk):
     serializer = UserSerializer(user, data=request.data, partial=True)
     
     if not serializer.is_valid():
-        return create_response(
-            success=False,
-            message='Validation failed',
-            errors=serializer.errors,
-            status_code=status.HTTP_400_BAD_REQUEST
+        return APIResponse.get_serializer_error_response(
+            return_code=APIResponse.Codes.VALIDATION_ERROR,
+            serializer_errors=serializer.errors
         )
     
     password = serializer.validated_data.pop('password', None)
@@ -132,76 +126,49 @@ def edituser(request, pk):
         user.set_password(password)
         user.save()
 
-    return create_response(
-        success=True,
-        message='User updated successfully',
+    return APIResponse.get_success_response(
+        return_code=APIResponse.Codes.PROFILE_UPDATED,
         data={'user': UserSerializer(user).data},
         status_code=status.HTTP_200_OK
     )
 
-
-# Update password (User or Admin)
+# Update password (Admin only)
 @api_view(['PUT'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAdminUser])
 @transaction.atomic
 def update_password(request, pk):
 
+    
     try:
         user = User.objects.get(pk=pk)  # Get user
     except User.DoesNotExist:
-        return create_response(
-            success=False,
-            message='User not found',
+        return APIResponse.get_error_response(
+            return_code=APIResponse.Codes.USER_NOT_FOUND,
             status_code=status.HTTP_404_NOT_FOUND
         )
 
-    # Only superuser or the user themself can update password
-    if not request.user.is_superuser and request.user.id != user.id:
-        return create_response(
-            success=False,
-            message='Permission denied',
+    # Only superuser can update password
+    if not request.user.is_superuser:
+        return APIResponse.get_error_response(
+            return_code=APIResponse.Codes.PERMISSION_DENIED,
             status_code=status.HTTP_403_FORBIDDEN
         )
 
-    current_password = request.data.get('password')
     new_password = request.data.get('new_password')
 
+    # Validate new password is provided
     if not new_password:
-        return create_response(
-            success=False,
-            message='New password is required',
+        return APIResponse.get_error_response(
+            return_code=APIResponse.Codes.PASSWORD_REQUIRED,
             status_code=status.HTTP_400_BAD_REQUEST
         )
 
-    # Normal user must verify current password
-    if not request.user.is_superuser:
-        if not current_password:
-            return create_response(
-                success=False,
-                message='Current password is required',
-                status_code=status.HTTP_400_BAD_REQUEST
-            )
-
-        if not user.check_password(current_password):
-            return create_response(
-                success=False,
-                message='Current password is incorrect',
-                status_code=status.HTTP_400_BAD_REQUEST
-            )
-
-        if current_password == new_password:
-            return create_response(
-                success=False,
-                message='New password cannot be the same as the current password',
-                status_code=status.HTTP_400_BAD_REQUEST
-            )
-
+    # Hash and save the new password
     user.set_password(new_password)
     user.save()
 
-    return create_response(
-        success=True,
-        message='Password updated successfully',
+    return APIResponse.get_success_response(
+        return_code=APIResponse.Codes.PASSWORD_CHANGE_SUCCESS,
         status_code=status.HTTP_200_OK
     )
 
@@ -214,16 +181,14 @@ def del_user(request, pk):
     try:
         user = User.objects.get(pk=pk)  # Find user
     except User.DoesNotExist:
-        return create_response(
-            success=False,
-            message='User not found',
+        return APIResponse.get_error_response(
+            return_code=APIResponse.Codes.USER_NOT_FOUND,
             status_code=status.HTTP_404_NOT_FOUND
         )
     
     user.delete()  # Delete user
-    return create_response(
-        success=True,
-        message='User deleted successfully',
+    return APIResponse.get_success_response(
+        return_code=APIResponse.Codes.USER_DELETED_SUCCESS,
         status_code=status.HTTP_200_OK
     )
 
@@ -237,11 +202,9 @@ def sign_up(request):
     serializer = RegistrationSerializer(data=request.data)
     
     if not serializer.is_valid():
-        return create_response(
-            success=False,
-            message='Validation failed',
-            errors=serializer.errors,
-            status_code=status.HTTP_400_BAD_REQUEST
+        return APIResponse.get_serializer_error_response(
+            return_code=APIResponse.Codes.VALIDATION_ERROR,
+            serializer_errors=serializer.errors
         )
     
     user = serializer.save()  # Create user (is_verified defaults to False)
@@ -270,9 +233,8 @@ def sign_up(request):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
     
-    return create_response(
-        success=True,
-        message='User registered successfully. Please verify your email with the OTP sent.',
+    return APIResponse.get_success_response(
+        return_code=APIResponse.Codes.REGISTRATION_SUCCESS,
         data={'user': UserSerializer(user).data},
         status_code=status.HTTP_201_CREATED
     )
@@ -287,11 +249,9 @@ def verify_email(request):
     serializer = VerifyEmailSerializer(data=request.data)
     
     if not serializer.is_valid():
-        return create_response(
-            success=False,
-            message='Validation failed',
-            errors=serializer.errors,
-            status_code=status.HTTP_400_BAD_REQUEST
+        return APIResponse.get_serializer_error_response(
+            return_code=APIResponse.Codes.VALIDATION_ERROR,
+            serializer_errors=serializer.errors
         )
     
     email = serializer.validated_data['email']
@@ -302,18 +262,16 @@ def verify_email(request):
         user = User.objects.get(email=email)
         otp_obj = EmailVerificationOTP.objects.get(user=user, otp=otp)
     except (User.DoesNotExist, EmailVerificationOTP.DoesNotExist):
-        return create_response(
-            success=False,
-            message='Invalid email or OTP',
+        return APIResponse.get_error_response(
+            return_code=APIResponse.Codes.OTP_INVALID,
             status_code=status.HTTP_400_BAD_REQUEST
         )
     
     # Check if OTP is expired (10 minutes)
     if timezone.now() - otp_obj.created_at > timedelta(minutes=10):
         otp_obj.delete()
-        return create_response(
-            success=False,
-            message='OTP has expired. Please request a new one.',
+        return APIResponse.get_error_response(
+            return_code=APIResponse.Codes.OTP_EXPIRED,
             status_code=status.HTTP_400_BAD_REQUEST
         )
     
@@ -324,9 +282,8 @@ def verify_email(request):
     # Delete OTP after successful verification
     otp_obj.delete()
     
-    return create_response(
-        success=True,
-        message='Email verified successfully. You can now login.',
+    return APIResponse.get_success_response(
+        return_code=APIResponse.Codes.OTP_VERIFIED,
         data={'user': UserSerializer(user).data},
         status_code=status.HTTP_200_OK
     )
@@ -340,11 +297,9 @@ def sign_in(request):
     serializer = LoginSerializer(data=request.data)
     
     if not serializer.is_valid():
-        return create_response(
-            success=False,
-            message='Validation failed',
-            errors=serializer.errors,
-            status_code=status.HTTP_400_BAD_REQUEST
+        return APIResponse.get_serializer_error_response(
+            return_code=APIResponse.Codes.VALIDATION_ERROR,
+            serializer_errors=serializer.errors
         )
     
     email = serializer.validated_data['email']
@@ -354,19 +309,37 @@ def sign_in(request):
     user = authenticate(request, username=email, password=password)
     
     if user is None:
-        return create_response(
-            success=False,
-            message='Invalid email or password',
+        return APIResponse.get_error_response(
+            return_code=APIResponse.Codes.INVALID_CREDENTIALS,
             status_code=status.HTTP_401_UNAUTHORIZED
         )
     
     # Check if user has verified their email
     if not user.is_verified:
+        # Generate 6-digit OTP for email verification
+        otp = f"{random.randint(100000, 999999)}"
+        EmailVerificationOTP.objects.update_or_create(
+            user=user, 
+            defaults={'otp': otp, 'created_at': timezone.now()}
+        )
         
+        # Send OTP to user's email
+        subject = "Email Verification OTP"
+        message = f"Welcome {user.first_name}! Your email verification OTP is: {otp}. It is valid for 10 minutes."
+        from_email = settings.EMAIL_HOST_USER
         
-        return create_response(
-            success=False,
-            message='Please verify your email first. Check your inbox for the OTP.',
+        try:
+            send_mail(subject, message, from_email, [user.email], fail_silently=False)
+        except Exception as e:
+            return create_response(
+                success=False,
+                message='Failed to send verification email',
+                errors={'email_error': str(e)},
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
+        return APIResponse.get_error_response(
+            return_code=APIResponse.Codes.ACCOUNT_NOT_VERIFIED,
             status_code=status.HTTP_403_FORBIDDEN
         )
     
@@ -377,9 +350,8 @@ def sign_in(request):
     
     refresh=RefreshToken.for_user(user)
     access_token=str(refresh.access_token)
-    return create_response(
-        success=True,
-        message=f'{role} login successful',
+    return APIResponse.get_success_response(
+        return_code=APIResponse.Codes.LOGIN_SUCCESS,
         data={'user': UserSerializer(user).data, 'access_token': str(access_token), 'refresh_token': str(refresh), 'role': role},
         status_code=status.HTTP_200_OK
     )
@@ -391,9 +363,8 @@ def sign_in(request):
 @permission_classes([AllowAny])
 def sign_out(request):
     logout(request)  # End session
-    return create_response(
-        success=True,
-        message='Logged out successfully',
+    return APIResponse.get_success_response(
+        return_code=APIResponse.Codes.LOGOUT_SUCCESS,
         status_code=status.HTTP_200_OK
     )
 
@@ -405,9 +376,8 @@ def view_profile(request):
     user = request.user
     serializer = UserProfileSerializer(user)
     
-    return create_response(
-        success=True,
-        message='Profile retrieved successfully',
+    return APIResponse.get_success_response(
+        return_code=APIResponse.Codes.PROFILE_RETRIEVED,
         data={'user': serializer.data},
         status_code=status.HTTP_200_OK
     )
@@ -422,18 +392,15 @@ def edit_profile(request):
     serializer = EditProfileSerializer(user, data=request.data, partial=True)
     
     if not serializer.is_valid():
-        return create_response(
-            success=False,
-            message='Validation failed',
-            errors=serializer.errors,
-            status_code=status.HTTP_400_BAD_REQUEST
+        return APIResponse.get_serializer_error_response(
+            return_code=APIResponse.Codes.VALIDATION_ERROR,
+            serializer_errors=serializer.errors
         )
     
     updated_user = serializer.save()
     
-    return create_response(
-        success=True,
-        message='Profile updated successfully',
+    return APIResponse.get_success_response(
+        return_code=APIResponse.Codes.PROFILE_UPDATED,
         data={'user': UserProfileSerializer(updated_user).data},
         status_code=status.HTTP_200_OK
     )
@@ -446,11 +413,9 @@ def change_password(request):
     serializer = ChangePasswordSerializer(data=request.data)
     
     if not serializer.is_valid():
-        return create_response(
-            success=False,
-            message='Validation failed',
-            errors=serializer.errors,
-            status_code=status.HTTP_400_BAD_REQUEST
+        return APIResponse.get_serializer_error_response(
+            return_code=APIResponse.Codes.VALIDATION_ERROR,
+            serializer_errors=serializer.errors
         )
     
     user = request.user
@@ -459,17 +424,15 @@ def change_password(request):
     
     # Verify old password
     if not user.check_password(old_password):
-        return create_response(
-            success=False,
-            message='Old password is incorrect',
+        return APIResponse.get_error_response(
+            return_code=APIResponse.Codes.INVALID_CREDENTIALS,
             status_code=status.HTTP_400_BAD_REQUEST
         )
     
     # Check if new password is same as old password
     if old_password == new_password:
-        return create_response(
-            success=False,
-            message='New password cannot be the same as old password',
+        return APIResponse.get_error_response(
+            return_code=APIResponse.Codes.PASSWORDS_DO_NOT_MATCH,
             status_code=status.HTTP_400_BAD_REQUEST
         )
     
@@ -477,9 +440,8 @@ def change_password(request):
     user.set_password(new_password)
     user.save()
     
-    return create_response(
-        success=True,
-        message='Password changed successfully',
+    return APIResponse.get_success_response(
+        return_code=APIResponse.Codes.PASSWORD_CHANGE_SUCCESS,
         status_code=status.HTTP_200_OK
     )
 
@@ -491,11 +453,9 @@ def change_password(request):
 def forget_password(request):
     serializer = ForgotPasswordSerializer(data=request.data)
     if not serializer.is_valid():
-        return create_response(
-            success=False,
-            message='Validation failed',
-            errors=serializer.errors,
-            status_code=status.HTTP_400_BAD_REQUEST
+        return APIResponse.get_serializer_error_response(
+            return_code=APIResponse.Codes.VALIDATION_ERROR,
+            serializer_errors=serializer.errors
         )
     
     email = serializer.validated_data['email']
@@ -505,9 +465,8 @@ def forget_password(request):
         user = User.objects.get(email=email)
     except User.DoesNotExist:
         # Do not reveal if user exists (security best practice)
-        return create_response(
-            success=True,
-            message='If the email exists, an OTP has been sent.',
+        return APIResponse.get_success_response(
+            return_code=APIResponse.Codes.PASSWORD_RESET_EMAIL_SENT,
             status_code=status.HTTP_200_OK
         )
 
@@ -529,9 +488,8 @@ def forget_password(request):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
-    return create_response(
-        success=True,
-        message='OTP sent to your email.',
+    return APIResponse.get_success_response(
+        return_code=APIResponse.Codes.PASSWORD_RESET_EMAIL_SENT,
         status_code=status.HTTP_200_OK
     )
 
@@ -545,11 +503,9 @@ def reset_password(request):
 
     serializer = ResetPasswordSerializer(data=request.data)
     if not serializer.is_valid():
-        return create_response(
-            success=False,
-            message='Validation failed',
-            errors=serializer.errors,
-            status_code=status.HTTP_400_BAD_REQUEST
+        return APIResponse.get_serializer_error_response(
+            return_code=APIResponse.Codes.VALIDATION_ERROR,
+            serializer_errors=serializer.errors
         )
     
     email = serializer.validated_data['email']
@@ -561,18 +517,16 @@ def reset_password(request):
         user = User.objects.get(email=email)
         otp_obj = PasswordResetOTP.objects.get(user=user, otp=otp)
     except (User.DoesNotExist, PasswordResetOTP.DoesNotExist):
-        return create_response(
-            success=False,
-            message='Invalid email or OTP',
+        return APIResponse.get_error_response(
+            return_code=APIResponse.Codes.OTP_INVALID,
             status_code=status.HTTP_400_BAD_REQUEST
         )
     
     # Check if OTP is expired (10 minutes)
     if timezone.now() - otp_obj.created_at > timedelta(minutes=10):
         otp_obj.delete()
-        return create_response(
-            success=False,
-            message='OTP has expired',
+        return APIResponse.get_error_response(
+            return_code=APIResponse.Codes.OTP_EXPIRED,
             status_code=status.HTTP_400_BAD_REQUEST
         )
     
@@ -583,8 +537,7 @@ def reset_password(request):
     # Delete OTP after use
     otp_obj.delete()
     
-    return create_response(
-        success=True,
-        message='Password has been reset successfully',
+    return APIResponse.get_success_response(
+        return_code=APIResponse.Codes.PASSWORD_CHANGE_SUCCESS,
         status_code=status.HTTP_200_OK
     )
