@@ -165,3 +165,17 @@ class APIResponse:
             payload["error_detail"] = raw
 
         return Response(payload, status=status.HTTP_400_BAD_REQUEST)
+
+
+# Utility function to create standardized API responses
+def create_response(success, message, data=None, errors=None, status_code=status.HTTP_200_OK):
+    response_data = {
+        'success': success,
+        'message': message
+    }
+    if data is not None:
+        response_data['data'] = data
+    if errors is not None:
+        response_data['errors'] = errors
+    
+    return Response(response_data, status=status_code)

@@ -13,8 +13,8 @@ from rest_framework.decorators import authentication_classes  # Token-based auth
 from rest_framework_simplejwt.tokens import RefreshToken  # JWT token management
 import random
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-
-
+from util.sent_otp import send_otp  # Utility function to send OTP emails
+from util.responses import create_response  # Utility function to create standardized API responses
 
 from datetime import timedelta
 from .models import User, PasswordResetOTP, EmailVerificationOTP  # Import custom User model and OTP models
@@ -32,18 +32,6 @@ from .serializer import (
 from util.responses import APIResponse # Standardized API response utility
 
 
-# Utility function to create standardized API responses
-def create_response(success, message, data=None, errors=None, status_code=status.HTTP_200_OK):
-    response_data = {
-        'success': success,
-        'message': message
-    }
-    if data is not None:
-        response_data['data'] = data
-    if errors is not None:
-        response_data['errors'] = errors
-    
-    return Response(response_data, status=status_code)
 
 
 # Get all users (only authenticated users can access)
@@ -93,7 +81,7 @@ def adduser(request):
 @transaction.atomic
 def edituser(request, pk):
 
-   
+
     try:
         user = User.objects.get(pk=pk)  # Find user by ID
     except User.DoesNotExist:
@@ -102,13 +90,6 @@ def edituser(request, pk):
             status_code=status.HTTP_404_NOT_FOUND
         )
     
-    # Only superuser can edit users
-    if not request.user.is_superuser:
-        return APIResponse.get_error_response(
-            return_code=APIResponse.Codes.PERMISSION_DENIED,
-            status_code=status.HTTP_403_FORBIDDEN
-        )
-
     # Partial update allowed
     serializer = UserSerializer(user, data=request.data, partial=True)
     
@@ -147,12 +128,6 @@ def update_password(request, pk):
             status_code=status.HTTP_404_NOT_FOUND
         )
 
-    # Only superuser can update password
-    if not request.user.is_superuser:
-        return APIResponse.get_error_response(
-            return_code=APIResponse.Codes.PERMISSION_DENIED,
-            status_code=status.HTTP_403_FORBIDDEN
-        )
 
     new_password = request.data.get('new_password')
 
@@ -208,30 +183,7 @@ def sign_up(request):
         )
     
     user = serializer.save()  # Create user (is_verified defaults to False)
-    
-    # Generate 6-digit OTP for email verification
-    otp = f"{random.randint(100000, 999999)}"
-    EmailVerificationOTP.objects.update_or_create(
-        user=user, 
-        defaults={'otp': otp, 'created_at': timezone.now()}
-    )
-    
-    # Send OTP to user's email
-    subject = "Email Verification OTP"
-    message = f"Welcome {user.first_name}! Your email verification OTP is: {otp}. It is valid for 10 minutes."
-    from_email = settings.EMAIL_HOST_USER
-    
-    try:
-        send_mail(subject, message, from_email, [user.email], fail_silently=False)
-    except Exception as e:
-        # If email fails, delete the user and return error
-        user.delete()
-        return create_response(
-            success=False,
-            message='Failed to send verification email',
-            errors={'email_error': str(e)},
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+    send_otp(user)
     
     return APIResponse.get_success_response(
         return_code=APIResponse.Codes.REGISTRATION_SUCCESS,
@@ -317,26 +269,7 @@ def sign_in(request):
     # Check if user has verified their email
     if not user.is_verified:
         # Generate 6-digit OTP for email verification
-        otp = f"{random.randint(100000, 999999)}"
-        EmailVerificationOTP.objects.update_or_create(
-            user=user, 
-            defaults={'otp': otp, 'created_at': timezone.now()}
-        )
-        
-        # Send OTP to user's email
-        subject = "Email Verification OTP"
-        message = f"Welcome {user.first_name}! Your email verification OTP is: {otp}. It is valid for 10 minutes."
-        from_email = settings.EMAIL_HOST_USER
-        
-        try:
-            send_mail(subject, message, from_email, [user.email], fail_silently=False)
-        except Exception as e:
-            return create_response(
-                success=False,
-                message='Failed to send verification email',
-                errors={'email_error': str(e)},
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+        send_otp(user)
         
         return APIResponse.get_error_response(
             return_code=APIResponse.Codes.ACCOUNT_NOT_VERIFIED,
