@@ -1,25 +1,27 @@
 # Django User Management API
 
 ## Project Overview
-A complete Django REST API for user management with authentication, authorization, email verification, and password reset functionality. Built using Django REST Framework with session-based authentication.
+A complete Django REST API for user management with JWT authentication, authorization, email verification, and password reset functionality. Built using Django REST Framework with JWT token-based authentication.
 
 ## Key Features
 - Complete user CRUD operations with proper permissions
 - User registration with email OTP verification
 - Email verification system for new users
 - Secure password reset flow with email OTP
+- JWT token-based authentication (access & refresh tokens)
 - Role-based access control (Admin/User)
 - Custom user model using email as primary identifier
 - Transaction-safe database operations
 - Profile picture upload support
 - Phone number validation
+- Standardized API response format
 
 ## Tech Stack
 - **Framework:** Django 5.2.9
 - **API:** Django REST Framework
 - **Database:** SQLite3
-- **Authentication:** Session-based
-- **Email:** Console backend (development)
+- **Authentication:** JWT (Simple JWT)
+- **Email:** SMTP Live email backend 
 - **Image Handling:** Pillow (for profile pictures)
 - **Phone Number:** django-phonenumber-field
 
@@ -46,14 +48,14 @@ A complete Django REST API for user management with authentication, authorizatio
 ### Admin APIs (Requires Admin Login)
 - `GET /api/getusers/` - List all users
 - `POST /api/adduser/` - Create user (auto-verified)
-- `PUT/PATCH /api/edituser/<id>/` - Update user (admin or owner)
+- `PUT/PATCH /api/edituser/<id>/` - Update user details
 - `DELETE /api/deleteuser/<id>/` - Delete user
-- `PUT /api/updatepassword/<id>/` - Change password (admin or owner)
+- `PUT /api/updatepassword/<id>/` - Update user password
 
 ### Authentication APIs (Public)
 - `POST /api/signup/` - Register new user (sends verification OTP)
 - `POST /api/verifyemail/` - Verify email with OTP
-- `POST /api/signin/` - Login with email/password (requires verified email)
+- `POST /api/signin/` - Login with email/password (requires verified email, returns JWT tokens)
 - `GET/POST /api/signout/` - Logout
 
 ### User Profile APIs (Requires Login)
@@ -67,30 +69,110 @@ A complete Django REST API for user management with authentication, authorizatio
 
 ## Setup Instructions
 
-### 1. Install Dependencies
+### 1. Create Django Project and App
 ```bash
-pip install django djangorestframework pillow django-phonenumber-field
+# Create Django project named 'DjangoCrud'
+django-admin startproject DjangoCrud
+cd DjangoCrud
+
+# Create app named 'usermangement'
+python manage.py startapp usermangement
+
+# Create utility directory
+mkdir util
+touch util/__init__.py
 ```
 
-### 2. Install from Requirements
+### 2. Install Dependencies
+```bash
+pip install django djangorestframework djangorestframework-simplejwt pillow django-phonenumber-field
+```
+
+### 3. Install from Requirements
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Run Migrations
+### 4. Configure Settings
+Add to `DjangoCrud/settings.py`:
+```python
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'phonenumber_field',
+    'usermangement',  # Your app
+]
+
+AUTH_USER_MODEL = 'usermangement.User'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+}
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+```
+
+### 5. Configure URLs
+Update `DjangoCrud/urls.py`:
+```python
+from django.contrib import admin
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('api/', include('usermangement.urls')),
+]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+```
+
+### 6. Run Migrations
 ```bash
 python manage.py makemigrations
 python manage.py migrate
 ```
 
-### 4. Create Superuser
+### 7. Create Superuser
 ```bash
 python manage.py createsuperuser
+# Enter email, first name, last name, and password
 ```
 
-### 5. Run Development Server
+### 8. Run Development Server
 ```bash
 python manage.py runserver
+```
+
+## Authentication
+
+### JWT Token Authentication
+The API uses JWT (JSON Web Token) for authentication. After successful login, you receive:
+- **Access Token**: Short-lived token for API requests (30 minutes)
+- **Refresh Token**: Long-lived token to get new access tokens (7 days)
+
+### Using JWT Tokens
+Include the access token in the Authorization header:
+```
+Authorization: Bearer <your_access_token>
 ```
 
 ## Permission Requirements
@@ -99,13 +181,13 @@ python manage.py runserver
 |----------|-------------------|-------|
 | GET /api/getusers/ | Authenticated user | Any logged-in user |
 | POST /api/adduser/ | Admin only | Creates verified user |
-| PUT /api/edituser/<id>/ | Owner or Admin | Update any field |
+| PUT /api/edituser/<id>/ | Admin only | Update any user field |
 | DELETE /api/deleteuser/<id>/ | Admin only | Permanent deletion |
-| PUT /api/updatepassword/<id>/ | Owner or Admin | Admin doesn't need old password |
+| PUT /api/updatepassword/<id>/ | Admin only | Update any user's password |
 | POST /api/signup/ | Public | Sends OTP to email |
 | POST /api/verifyemail/ | Public | Validates OTP |
-| POST /api/signin/ | Public | Requires verified email |
-| GET/POST /api/signout/ | Public | Clears session |
+| POST /api/signin/ | Public | Requires verified email, returns JWT tokens |
+| GET/POST /api/signout/ | Public | No server-side session to clear |
 | GET /api/viewprofile/ | Authenticated user | Own profile only |
 | PUT /api/editprofile/ | Authenticated user | Own profile only |
 | POST /api/changepassword/ | Authenticated user | Requires old password |
@@ -118,6 +200,68 @@ python manage.py runserver
 - At least one lowercase letter (a-z)
 - At least one digit (0-9)
 - At least one special character (!@#$%^&*(),.?":{}|<>)
+
+## API Response Format
+
+All API responses follow a standardized format:
+
+### Success Response
+```json
+{
+  "success": true,
+  "return_code": "OPERATION_CODE",
+  "message": "Human-readable success message",
+  "data": {
+    // Response data here
+  }
+}
+```
+
+### Error Response
+```json
+{
+  "success": false,
+  "return_code": "ERROR_CODE",
+  "message": "Human-readable error message"
+}
+```
+
+### Validation Error Response
+```json
+{
+  "success": false,
+  "return_code": "VALIDATION_ERROR",
+  "message": "Human-readable validation error message",
+  "errors": {
+    "field_name": ["error_code"]
+  },
+  "error_detail": "error_code"
+}
+```
+
+## Return Codes
+
+### Success Codes
+- `REGISTRATION_SUCCESS` - User registered successfully
+- `LOGIN_SUCCESS` - Login successful
+- `OTP_VERIFIED` - OTP verified successfully
+- `PASSWORD_RESET_EMAIL_SENT` - Password reset email sent
+- `PASSWORD_CHANGE_SUCCESS` - Password changed successfully
+- `LOGOUT_SUCCESS` - Logout successful
+- `USER_DELETED_SUCCESS` - User deleted successfully
+- `PROFILE_RETRIEVED` - Profile retrieved successfully
+- `PROFILE_UPDATED` - Profile updated successfully
+- `USERS_LIST_RETRIEVED` - Users list retrieved successfully
+
+### Error Codes
+- `VALIDATION_ERROR` - Validation failed
+- `INVALID_CREDENTIALS` - Invalid email or password
+- `ACCOUNT_NOT_VERIFIED` - Account not verified
+- `USER_NOT_FOUND` - User does not exist
+- `OTP_INVALID` - Invalid OTP
+- `OTP_EXPIRED` - OTP has expired
+- `PASSWORD_REQUIRED` - Password is required
+- `PASSWORDS_DO_NOT_MATCH` - Passwords do not match
 
 ## API Request/Response Examples
 
@@ -140,7 +284,8 @@ Request:
 Response (201 CREATED):
 {
   "success": true,
-  "message": "User registered successfully. Please verify your email with the OTP sent.",
+  "return_code": "REGISTRATION_SUCCESS",
+  "message": "Registration successful. OTP sent.",
   "data": {
     "user": {
       "id": 1,
@@ -158,11 +303,12 @@ Response (201 CREATED):
 Error Response (400 BAD REQUEST):
 {
   "success": false,
-  "message": "Validation failed",
+  "return_code": "VALIDATION_ERROR",
+  "message": "Enter a valid email address.",
   "errors": {
-    "email": ["user with this email already exists."],
-    "password": ["Password must be at least 8 characters long."]
-  }
+    "email": ["email_invalid"]
+  },
+  "error_detail": "email_invalid"
 }
 ```
 
@@ -180,7 +326,8 @@ Request:
 Response (200 OK):
 {
   "success": true,
-  "message": "Email verified successfully. You can now login.",
+  "return_code": "OTP_VERIFIED",
+  "message": "OTP verified successfully.",
   "data": {
     "user": {
       "id": 1,
@@ -195,13 +342,15 @@ Response (200 OK):
 Error Response (400 BAD REQUEST):
 {
   "success": false,
-  "message": "Invalid email or OTP"
+  "return_code": "OTP_INVALID",
+  "message": "Invalid OTP."
 }
 
 Error Response (400 BAD REQUEST):
 {
   "success": false,
-  "message": "OTP has expired. Please request a new one."
+  "return_code": "OTP_EXPIRED",
+  "message": "OTP has expired."
 }
 ```
 
@@ -219,7 +368,8 @@ Request:
 Response (200 OK):
 {
   "success": true,
-  "message": "User login successful",
+  "return_code": "LOGIN_SUCCESS",
+  "message": "Login successful.",
   "data": {
     "user": {
       "id": 1,
@@ -228,20 +378,25 @@ Response (200 OK):
       "email": "rahul.sharma@gmail.com",
       "address": "123, MG Road, Connaught Place, New Delhi - 110001",
       "is_verified": true
-    }
+    },
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "role": "User"
   }
 }
 
 Error Response (401 UNAUTHORIZED):
 {
   "success": false,
-  "message": "Invalid email or password"
+  "return_code": "INVALID_CREDENTIALS",
+  "message": "Invalid email or password."
 }
 
 Error Response (403 FORBIDDEN):
 {
   "success": false,
-  "message": "Please verify your email first. Check your inbox for the OTP."
+  "return_code": "ACCOUNT_NOT_VERIFIED",
+  "message": "Please verify your account first."
 }
 ```
 
@@ -254,19 +409,22 @@ POST /api/signout/
 Response (200 OK):
 {
   "success": true,
-  "message": "Logged out successfully"
+  "return_code": "LOGOUT_SUCCESS",
+  "message": "Logout successful.",
+  "data": {}
 }
 ```
 
 ### 5. View Profile
 ```json
 GET /api/viewprofile/
-Headers: Session cookie required
+Authorization: Bearer <access_token>
 
 Response (200 OK):
 {
   "success": true,
-  "message": "Profile retrieved successfully",
+  "return_code": "PROFILE_RETRIEVED",
+  "message": "Profile retrieved successfully.",
   "data": {
     "user": {
       "id": 1,
@@ -284,30 +442,30 @@ Response (200 OK):
 
 ### 6. Edit Profile
 ```json
-PUT /api/editprofile/
-Headers: Session cookie required
+PATCH /api/editprofile/
+Authorization: Bearer <access_token>
 Content-Type: application/json
 
 Request:
 {
   "first_name": "Rahul Kumar",
-  "last_name": "Sharma",
-  "phone_number": "+919876543211"
+  "address": "456, Nehru Place, New Delhi - 110019"
 }
 
 Response (200 OK):
 {
   "success": true,
-  "message": "Profile updated successfully",
+  "return_code": "PROFILE_UPDATED",
+  "message": "Profile updated successfully.",
   "data": {
     "user": {
       "id": 1,
       "first_name": "Rahul Kumar",
       "last_name": "Sharma",
       "email": "rahul.sharma@gmail.com",
-      "address": "123, MG Road, Connaught Place, New Delhi - 110001",
+      "address": "456, Nehru Place, New Delhi - 110019",
       "profile_picture": null,
-      "phone_number": "+919876543211",
+      "phone_number": "+919876543210",
       "is_verified": true
     }
   }
@@ -317,7 +475,7 @@ Response (200 OK):
 ### 7. Change Password
 ```json
 POST /api/changepassword/
-Headers: Session cookie required
+Authorization: Bearer <access_token>
 Content-Type: application/json
 
 Request:
@@ -330,19 +488,23 @@ Request:
 Response (200 OK):
 {
   "success": true,
-  "message": "Password changed successfully"
+  "return_code": "PASSWORD_CHANGE_SUCCESS",
+  "message": "Password changed successfully.",
+  "data": {}
 }
 
 Error Response (400 BAD REQUEST):
 {
   "success": false,
-  "message": "Old password is incorrect"
+  "return_code": "INVALID_CREDENTIALS",
+  "message": "Invalid email or password."
 }
 
 Error Response (400 BAD REQUEST):
 {
   "success": false,
-  "message": "New password cannot be the same as old password"
+  "return_code": "PASSWORDS_DO_NOT_MATCH",
+  "message": "Passwords do not match."
 }
 ```
 
@@ -359,7 +521,9 @@ Request:
 Response (200 OK):
 {
   "success": true,
-  "message": "OTP sent to your email."
+  "return_code": "PASSWORD_RESET_EMAIL_SENT",
+  "message": "Password reset email sent.",
+  "data": {}
 }
 
 Note: Same response even if email doesn't exist (security best practice)
@@ -390,31 +554,36 @@ Request:
 Response (200 OK):
 {
   "success": true,
-  "message": "Password has been reset successfully"
+  "return_code": "PASSWORD_CHANGE_SUCCESS",
+  "message": "Password changed successfully.",
+  "data": {}
 }
 
 Error Response (400 BAD REQUEST):
 {
   "success": false,
-  "message": "Invalid email or OTP"
+  "return_code": "OTP_INVALID",
+  "message": "Invalid OTP."
 }
 
 Error Response (400 BAD REQUEST):
 {
   "success": false,
-  "message": "OTP has expired"
+  "return_code": "OTP_EXPIRED",
+  "message": "OTP has expired."
 }
 ```
 
-### 10. Get All Users (Admin or Authenticated)
+### 10. Get All Users (Authenticated)
 ```json
 GET /api/getusers/
-Headers: Session cookie required
+Authorization: Bearer <access_token>
 
 Response (200 OK):
 {
   "success": true,
-  "message": "Users retrieved successfully",
+  "return_code": "USERS_LIST_RETRIEVED",
+  "message": "Users list retrieved successfully.",
   "data": {
     "users": [
       {
@@ -441,7 +610,7 @@ Response (200 OK):
 ### 11. Add User (Admin Only)
 ```json
 POST /api/adduser/
-Headers: Session cookie required (admin)
+Authorization: Bearer <admin_access_token>
 Content-Type: application/json
 
 Request:
@@ -458,7 +627,8 @@ Request:
 Response (201 CREATED):
 {
   "success": true,
-  "message": "User created successfully",
+  "return_code": "REGISTRATION_SUCCESS",
+  "message": "Registration successful. OTP sent.",
   "data": {
     "user": {
       "id": 2,
@@ -473,61 +643,50 @@ Response (201 CREATED):
 Note: Admin created users are automatically verified
 ```
 
-### 12. Edit User (Admin or Owner)
+### 12. Edit User (Admin Only)
 ```json
-PUT /api/edituser/1/
-Headers: Session cookie required
+PATCH /api/edituser/2/
+Authorization: Bearer <admin_access_token>
 Content-Type: application/json
 
 Request:
 {
   "first_name": "Priya Devi",
-  "last_name": "Patel",
-  "address": "789, CG Road, Ahmedabad, Gujarat - 380009",
-  "phone_number": "+919123456788"
+  "address": "789, CG Road, Ahmedabad, Gujarat - 380009"
 }
 
 Response (200 OK):
 {
   "success": true,
-  "message": "User updated successfully",
+  "return_code": "PROFILE_UPDATED",
+  "message": "Profile updated successfully.",
   "data": {
     "user": {
-      "id": 1,
+      "id": 2,
       "first_name": "Priya Devi",
       "last_name": "Patel",
       "email": "priya.patel@gmail.com",
-      "address": "789, CG Road, Ahmedabad, Gujarat - 380009"
+      "address": "789, CG Road, Ahmedabad, Gujarat - 380009",
+      "is_verified": true
     }
   }
-}
-
-Error Response (403 FORBIDDEN):
-{
-  "success": false,
-  "message": "Permission denied"
 }
 
 Error Response (404 NOT FOUND):
 {
   "success": false,
-  "message": "User not found"
+  "return_code": "USER_NOT_FOUND",
+  "message": "User does not exist."
 }
 ```
 
-### 13. Update Password (Admin or Owner)
+### 13. Update Password (Admin Only)
 ```json
-PUT /api/updatepassword/1/
-Headers: Session cookie required
+PUT /api/updatepassword/2/
+Authorization: Bearer <admin_access_token>
 Content-Type: application/json
 
-Normal User Request:
-{
-  "password": "Priya@123",
-  "new_password": "Priya@456"
-}
-
-Admin Request (no current password needed):
+Request:
 {
   "new_password": "Priya@456"
 }
@@ -535,49 +694,56 @@ Admin Request (no current password needed):
 Response (200 OK):
 {
   "success": true,
-  "message": "Password updated successfully"
+  "return_code": "PASSWORD_CHANGE_SUCCESS",
+  "message": "Password changed successfully.",
+  "data": {}
 }
 
 Error Response (400 BAD REQUEST):
 {
   "success": false,
-  "message": "Current password is incorrect"
-}
-
-Error Response (400 BAD REQUEST):
-{
-  "success": false,
-  "message": "New password cannot be the same as the current password"
+  "return_code": "PASSWORD_REQUIRED",
+  "message": "Password is required."
 }
 ```
 
 ### 14. Delete User (Admin Only)
 ```json
-DELETE /api/deleteuser/1/
-Headers: Session cookie required (admin)
+DELETE /api/deleteuser/2/
+Authorization: Bearer <admin_access_token>
 
 Response (200 OK):
 {
   "success": true,
-  "message": "User deleted successfully"
+  "return_code": "USER_DELETED_SUCCESS",
+  "message": "User account deleted successfully.",
+  "data": {}
 }
 
 Error Response (404 NOT FOUND):
 {
   "success": false,
-  "message": "User not found"
+  "return_code": "USER_NOT_FOUND",
+  "message": "User does not exist."
 }
 ```
 
 ## Testing with Postman
 
-### Setup Base URL
-Set environment variable: `base_url = http://localhost:8000/api`
+### Setup Environment
+1. Create environment variable: `baseurll = http://localhost:8000/api/`
+2. Create variable for access token: `token`
+
+### Authentication Setup
+1. In Postman collection, go to Authorization tab
+2. Select Type: Bearer Token
+3. Token: `{{token}}`
+4. This will automatically add the token to all requests
 
 ### Testing Flow
 1. **Sign Up** → Register user, OTP sent to email (check console)
 2. **Verify Email** → Use OTP from console to verify email
-3. **Sign In** → Login with verified credentials
+3. **Sign In** → Login with verified credentials, save access_token to `{{token}}`
 4. **View Profile** → Check user profile
 5. **Edit Profile** → Update profile details
 6. **Change Password** → Change password with old password
@@ -587,9 +753,9 @@ Set environment variable: `base_url = http://localhost:8000/api`
 
 ### Admin Testing
 1. Create superuser via command line
-2. Sign in as admin
-3. Test admin-only endpoints (adduser, deleteuser)
-4. Test editing other users
+2. Sign in as admin, save access_token
+3. Test admin-only endpoints (adduser, edituser, deleteuser, updatepassword)
+
 
 ## Project Structure
 ```
@@ -600,6 +766,10 @@ DjangoCrud/
 │   ├── views.py               # API endpoints with transaction safety
 │   ├── urls.py                # App URL routing
 │   └── migrations/            # Database migrations
+├── util/
+│   ├── base_serializer.py     # Base serializer classes and error handling
+│   ├── responses.py           # Standardized API response utilities
+│   └── sent_otp.py            # OTP sending utility
 ├── DjangoCrud/
 │   ├── settings.py            # Project settings
 │   ├── urls.py                # Main URL config
@@ -613,13 +783,18 @@ DjangoCrud/
 
 ## Configuration
 
-### Email Settings (Development)
+### JWT Settings
 ```python
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+}
 ```
-OTPs will be printed in the console for testing.
 
-### Email Settings (Production)
+
+### Email Settings
 ```python
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -653,9 +828,45 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 - Use environment variables for sensitive data
 - Set up proper file upload validation
 - Configure max file upload size
+- Rotate JWT secret keys periodically
+- Implement token refresh mechanism
+- Consider token blacklisting for logout
 
 ### Current Setup
 - Development mode (DEBUG=True)
-- Session-based authentication
+- JWT authentication with access & refresh tokens
 - SQLite database
 - No rate limiting (add in production)
+
+
+## Error Handling
+
+The API uses a standardized error handling approach with:
+- Custom error codes for all scenarios
+- Field-specific validation errors
+- Prioritized error messages (e.g., confirm_password errors shown first)
+- Detailed error information for debugging
+- User-friendly error messages
+
+## Utility Functions
+
+### APIResponse Class
+Standardized response creator with methods:
+- `get_success_response()` - Success responses with data
+- `get_error_response()` - Generic error responses
+- `get_validation_error_response()` - Validation error responses with field details
+
+### send_otp()
+Reusable OTP sending function used for:
+- Email verification during registration
+- Account verification when unverified user tries to login
+
+## Dependencies
+```
+Django==5.2.9
+djangorestframework==3.14.0
+djangorestframework-simplejwt==5.3.1
+Pillow==10.0.0
+django-phonenumber-field==7.1.0
+phonenumbers==8.13.18
+```

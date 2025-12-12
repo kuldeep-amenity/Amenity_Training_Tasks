@@ -6,7 +6,7 @@ from rest_framework import serializers
 
 
 def get_response_serializer(
-    model: models.Model, fields: List[str] = [], exclude_fields: List[str] = []
+    model: models.Model, fields: List[str] = [],                          exclude_fields: List[str] = []
 ):
     if not any([fields, exclude_fields]):
         raise ValueError("Please provide either of fields : fields or exclude fields")
