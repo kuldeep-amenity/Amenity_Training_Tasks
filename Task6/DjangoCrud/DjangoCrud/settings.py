@@ -59,19 +59,21 @@ CSRF_TRUSTED_ORIGINS = [
 
 # CORS Configuration - Order and specificity matter for proper preflight handling
 # Use CORS_ALLOW_ALL_ORIGINS for development to fix ngrok issues
-# CORS_ALLOW_ALL_ORIGINS = True  # Set to True for development with ngrok
+CORS_ALLOW_ALL_ORIGINS = True  # Set to True for development with ngrok
 
 # If you want to restrict origins in production, comment above and uncomment below:
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://192.168.0.214:8000",
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "https://shawanda-abiding-rayne.ngrok-free.dev",
-    "https://*.ngrok-free.dev",
-    "http://localhost:8000",
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:3000",
+#     "http://192.168.0.214:8000",
+#     "http://localhost:5173",
+#     "http://127.0.0.1:5173",
+#     "https://shawanda-abiding-rayne.ngrok-free.dev",
+#     "https://*.ngrok-free.dev",
+#     "http://localhost:8000",
+#     "https://nonsolidified-annika-criminally.ngrok-free.dev/",
+#     "*"
     
-]
+# ]
 
 CORS_ALLOW_CREDENTIALS = True
 

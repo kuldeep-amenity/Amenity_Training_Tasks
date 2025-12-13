@@ -12,6 +12,9 @@ from rest_framework.authentication import TokenAuthentication  # Token-based aut
 from rest_framework.decorators import authentication_classes  # Token-based authentication
 from rest_framework_simplejwt.tokens import RefreshToken  # JWT token management
 import random
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode 
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from util.sent_otp import send_otp  # Utility function to send OTP emails
 from util.responses import create_response  # Utility function to create standardized API responses
@@ -365,7 +368,7 @@ def change_password(request):
     # Check if new password is same as old password
     if old_password == new_password:
         return APIResponse.get_error_response(
-            return_code=APIResponse.Codes.PASSWORDS_DO_NOT_MATCH,
+            return_code=APIResponse.Codes.NEW_PASSWORD_IS_SAME_AS_OLD,
             status_code=status.HTTP_400_BAD_REQUEST
         )
     
@@ -397,7 +400,7 @@ def forget_password(request):
     try:
         user = User.objects.get(email=email)
     except User.DoesNotExist:
-        # Do not reveal if user exists (security best practice)
+        
         return APIResponse.get_success_response(
             return_code=APIResponse.Codes.PASSWORD_RESET_EMAIL_SENT,
             status_code=status.HTTP_200_OK
@@ -407,8 +410,22 @@ def forget_password(request):
     otp = f"{random.randint(100000, 999999)}"
     PasswordResetOTP.objects.update_or_create(user=user, defaults={'otp': otp, 'created_at': timezone.now()})
 
+    # send otp verification url to user's email
+    
+
+    uid = user.pk
+
+    # frontend url
+    forntend_url = "https://nonsolidified-annika-criminally.ngrok-free.dev"
+    reset_url = f"{forntend_url}/resetpassword/{uid}/"
+    print(reset_url)
+
     subject = "Password Reset OTP"
-    message = f"Your password reset OTP is: {otp}. It is valid for 10 minutes."
+    message = (
+    f"Your password reset OTP is: {otp}. It is valid for 10 minutes.\n\n"
+    f"Reset your password using the following link:\n{reset_url}"
+)
+
     from_email = settings.EMAIL_HOST_USER
     
     try:
@@ -432,7 +449,7 @@ def forget_password(request):
 @permission_classes([AllowAny])
 @authentication_classes([])
 @transaction.atomic
-def reset_password(request):
+def reset_password(request,pk):
 
     serializer = ResetPasswordSerializer(data=request.data)
     if not serializer.is_valid():
@@ -444,6 +461,17 @@ def reset_password(request):
     email = serializer.validated_data['email']
     otp = serializer.validated_data['otp']
     new_password = serializer.validated_data['new_password']
+    
+    
+    # Decode uid and fetch user
+    try:
+
+        user = User.objects.get(pk=pk)
+    except (User.DoesNotExist, ValueError, TypeError, OverflowError):
+        return APIResponse.get_error_response(
+            return_code=APIResponse.Codes.USER_NOT_FOUND,
+            status_code=status.HTTP_404_NOT_FOUND
+        )
     
     # Check OTP validity
     try:

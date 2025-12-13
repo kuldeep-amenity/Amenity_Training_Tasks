@@ -22,5 +22,5 @@ urlpatterns = [
     # Password Management APIs
     path('changepassword/', views.change_password, name='change_password'),
     path('forgetpassword/', views.forget_password, name='forget_password'),
-    path('resetpassword/', views.reset_password, name='reset_password'),
+    path('resetpassword/<int:pk>/', views.reset_password, name='reset_password'),
 ]

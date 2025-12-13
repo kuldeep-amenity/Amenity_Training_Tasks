@@ -37,6 +37,7 @@ class APIResponse:
         OTP_EXPIRED = "OTP_EXPIRED"
         PASSWORD_REQUIRED = "PASSWORD_REQUIRED"
         PASSWORDS_DO_NOT_MATCH = "PASSWORDS_DO_NOT_MATCH"
+        NEW_PASSWORD_IS_SAME_AS_OLD = "NEW_PASSWORD_IS_SAME_AS_OLD"
         TOKEN_INVALID = "TOKEN_INVALID"
         INVALID_LINK = "INVALID_LINK"
         LOGIN_CREDENTIAL_INVALID = "LOGIN_CREDENTIAL_INVALID"
@@ -79,6 +80,7 @@ class APIResponse:
             OTP_EXPIRED: "OTP has expired.",
             PASSWORD_REQUIRED: "Password is required.",
             PASSWORDS_DO_NOT_MATCH: "Passwords do not match.",
+            NEW_PASSWORD_IS_SAME_AS_OLD: "New password cannot be the same as the old password.",
             TOKEN_INVALID: "Token is invalid or expired.",
             INVALID_LINK: "Invalid reset password link.",
             LOGIN_CREDENTIAL_INVALID: "Invalid login credentials.",
